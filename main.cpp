@@ -1,8 +1,19 @@
-#include <gsl/gsl>
-#include <memory>
+#include "Controllers/TFileSystem.hpp"
 
-int main() {
-    gsl::not_null<std::shared_ptr<int>> i = std::make_shared<int>(1);
+fuse_operations FileSystemOperations = {
+    .getattr = TFileSystem::GetAttr,
+    .readlink = TFileSystem::ReadLink,
+    .mknod = TFileSystem::MkNod,
+    .mkdir = TFileSystem::MkDir,
+    .unlink = TFileSystem::Unlink,
+    .rmdir = TFileSystem::RmDir,
+    .symlink = TFileSystem::SymLink,
+    .chmod = TFileSystem::ChMod,
+    .read = TFileSystem::Read,
+    .write = TFileSystem::Write,
+    .readdir = TFileSystem::ReadDir,
+};
 
-    return 0;
+int main(int argc, char *argv[]) {
+    return fuse_main(argc, argv, &FileSystemOperations, nullptr);
 }
