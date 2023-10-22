@@ -8,6 +8,10 @@ namespace cppfuse {
 class TFile : public TSpecializedObjectMixin<S_IFREG, TDirectory> {
     public:
     TFile(const std::string& name, mode_t mode);
+    [[nodiscard]] const std::vector<char>& Content() const;
+
+    protected:
+    std::vector<char> m_vContent;
 };
 
 }
