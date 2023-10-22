@@ -5,14 +5,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS -Wall)
 
 add_executable(${PROJECT_NAME} main.cpp
-        Models/TFileSystemObject.cpp
-        Models/TFileSystemObject.hpp
+        Models/TObjectMixin.hpp
         Models/TFile.cpp
         Models/TFile.hpp
         Models/TDirectory.cpp
         Models/TDirectory.hpp
         Models/TLink.cpp
-        Models/TLink.hpp)
+        Models/TLink.hpp
+        Models/TCommonDeclarations.hpp
+        Models/TSpecializedObjectMixin.hpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE external/gsl/include)
 target_include_directories(${PROJECT_NAME} PRIVATE external/RppSync/include)

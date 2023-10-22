@@ -1,14 +1,16 @@
 #ifndef CPPFUSE_TDIRECTORY_HPP
 #define CPPFUSE_TDIRECTORY_HPP
 
-#include "TFileSystemObject.hpp"
+#include "TSpecializedObjectMixin.hpp"
+#include <sys/stat.h>
 
 namespace cppfuse {
 
-class TDirectory : TFileSystemObject {
+class TDirectory : public TSpecializedObjectMixin<S_IFDIR, TDirectory> {
     public:
     TDirectory(const std::string& name, mode_t mode);
-    virtual void Mode(mode_t mode) override;
+
+
 };
 
 }

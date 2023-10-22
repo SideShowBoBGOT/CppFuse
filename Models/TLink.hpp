@@ -1,14 +1,13 @@
 #ifndef CPPFUSE_TLINK_HPP
 #define CPPFUSE_TLINK_HPP
 
-#include "TFileSystemObject.hpp"
+#include "TDirectory.hpp"
 
 namespace cppfuse {
 
-class TLink : TFileSystemObject {
+class TLink : public TSpecializedObjectMixin<S_IFLNK, TDirectory> {
     public:
     TLink(const std::string& name, mode_t mode);
-    virtual void Mode(mode_t mode) override;
 };
 
 }
