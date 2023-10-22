@@ -1,0 +1,6 @@
+[submodule "external/gsl"]
+	path = external/gsl
+	url = https://github.com/microsoft/GSL
+[submodule "external/RppSync"]
+	path = external/RppSync
+	url = https://github.com/SideShowBoBGOT/RppSync
