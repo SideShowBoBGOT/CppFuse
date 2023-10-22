@@ -7,7 +7,12 @@ set(CMAKE_CXX_FLAGS -Wall)
 add_executable(${PROJECT_NAME} main.cpp
         Models/TFileSystemObject.cpp
         Models/TFileSystemObject.hpp
-        Models/THardLink.hpp)
+        Models/TFile.cpp
+        Models/TFile.hpp
+        Models/TDirectory.cpp
+        Models/TDirectory.hpp
+        Models/TLink.cpp
+        Models/TLink.hpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE external/gsl/include)
 target_include_directories(${PROJECT_NAME} PRIVATE external/RppSync/include)
