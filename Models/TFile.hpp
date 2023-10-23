@@ -5,7 +5,7 @@
 
 namespace cppfuse {
 
-class TFile : public TFileSpecializedObject<S_IFREG> {
+class TFile : public TSpecializedObjectMixin<S_IFREG, TDirectory> {
     public:
     TFile(const std::string& name, mode_t mode, const rppsync::TSharedRw<TDirectory>& parent);
     [[nodiscard]] const std::vector<char>& Content() const;

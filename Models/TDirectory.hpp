@@ -11,10 +11,7 @@ class TDirectory;
 
 using TFileObject = TObjectMixin<TDirectory>;
 
-template<auto ObjectMask>
-using TFileSpecializedObject = TSpecializedObjectMixin<ObjectMask, TDirectory>;
-
-class TDirectory : public TFileSpecializedObject<S_IFDIR> {
+class TDirectory : public TSpecializedObjectMixin<S_IFDIR, TDirectory> {
     public:
     TDirectory(const std::string& name, mode_t mode, const rppsync::TSharedRw<TDirectory>& parent);
     [[nodiscard]] const std::vector<rppsync::TSharedRw<TFileObject>>& Objects() const;

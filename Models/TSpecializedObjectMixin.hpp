@@ -10,7 +10,7 @@ class TSpecializedObjectMixin : public TObjectMixin<ParentType> {
     public:
     TSpecializedObjectMixin(const std::string& name, mode_t mode, const rppsync::TSharedRw<ParentType>& parent)
         : TObjectMixin<ParentType>(name, mode | ObjectMask, parent) {}
-    virtual void Mode(mode_t mode) override { this->m_uMode = mode | ObjectMask; }
+    virtual void SetMode(mode_t mode) override { this->m_uMode = mode | ObjectMask; }
 };
 
 }

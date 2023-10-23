@@ -6,7 +6,7 @@
 
 namespace cppfuse {
 
-class TLink : public TFileSpecializedObject<S_IFLNK> {
+class TLink : public TSpecializedObjectMixin<S_IFLNK, TDirectory> {
     public:
     TLink(const std::string& name, mode_t mode, const rppsync::TSharedRw<TDirectory>& parent,
         const std::filesystem::path& linkTo);
