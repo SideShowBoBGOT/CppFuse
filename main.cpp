@@ -1,17 +1,17 @@
 #include "Controllers/TFileSystem.hpp"
 
 fuse_operations FileSystemOperations = {
-    .getattr = TFileSystem::GetAttr,
-    .readlink = TFileSystem::ReadLink,
-    .mknod = TFileSystem::MkNod,
-    .mkdir = TFileSystem::MkDir,
-    .unlink = TFileSystem::Unlink,
-    .rmdir = TFileSystem::RmDir,
-    .symlink = TFileSystem::SymLink,
-    .chmod = TFileSystem::ChMod,
-    .read = TFileSystem::Read,
-    .write = TFileSystem::Write,
-    .readdir = TFileSystem::ReadDir,
+    .getattr = cppfuse::TFileSystem::GetAttr,
+    .readlink = cppfuse::TFileSystem::ReadLink,
+    .mknod = cppfuse::TFileSystem::MkNod,
+    .mkdir = cppfuse::TFileSystem::MkDir,
+    .unlink = cppfuse::TFileSystem::Unlink,
+    .rmdir = cppfuse::TFileSystem::RmDir,
+    .symlink = cppfuse::TFileSystem::SymLink,
+    .chmod = cppfuse::TFileSystem::ChMod,
+    .read = cppfuse::TFileSystem::Read,
+    .write = cppfuse::TFileSystem::Write,
+    .readdir = cppfuse::TFileSystem::ReadDir,
 };
 
 int main(int argc, char *argv[]) {

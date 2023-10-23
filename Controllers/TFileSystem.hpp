@@ -3,11 +3,11 @@
 
 #define FUSE_USE_VERSION 30
 
-#include <vector>
-#include <expected>
-#include <filesystem>
+#include "../Models/TDirectory.hpp"
 
 #include <fuse3/fuse.h>
+
+namespace cppfuse {
 
 class TFileSystem {
     public:
@@ -22,6 +22,13 @@ class TFileSystem {
     static int Read(const char *path, char *buffer, size_t size, off_t offset, struct fuse_file_info *fi);
     static int Write(const char *path, const char *buffer, size_t size, off_t offset, struct fuse_file_info *info);
     static int ReadDir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags);
+
+    protected:
+    static const rppsync::TSharedRw<TDirectory> s_pRootDir;
 };
+
+}
+
+
 
 #endif //CPPFUSE_TFILESYSTEM_HPP

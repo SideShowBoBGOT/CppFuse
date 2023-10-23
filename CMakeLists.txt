@@ -12,10 +12,11 @@ add_executable(${PROJECT_NAME} main.cpp
         Models/TDirectory.hpp
         Models/TLink.cpp
         Models/TLink.hpp
-        Models/TCommonDeclarations.hpp
         Models/TSpecializedObjectMixin.hpp
         Controllers/TFileSystem.cpp
-        Controllers/TFileSystem.hpp)
+        Controllers/TFileSystem.hpp
+        Models/TLink.cpp
+        Models/TCommonDeclarations.hpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE external/gsl/include)
 target_include_directories(${PROJECT_NAME} PRIVATE external/RppSync/include)

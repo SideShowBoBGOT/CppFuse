@@ -1,11 +1,10 @@
 #include "TDirectory.hpp"
-#include <sys/stat.h>
 
 namespace cppfuse {
 
-cppfuse::TDirectory::TDirectory(const std::string& name, mode_t mode)
-    : TSpecializedObjectMixin(name, mode) {}
+cppfuse::TDirectory::TDirectory(const std::string& name, mode_t mode, const rppsync::TSharedRw<TDirectory>& parent)
+    : TSpecializedObjectMixin(name, mode, parent) {}
 
-const std::vector<TRwObject>& TDirectory::Objects() const { return m_vObjects; }
+const std::vector<rppsync::TSharedRw<TFileObject>>& TDirectory::Objects() const { return m_vObjects; }
 
 }

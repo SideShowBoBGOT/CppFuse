@@ -1,5 +1,11 @@
 #include "TFileSystem.hpp"
 
+namespace cppfuse {
+
+const static constexpr std::string_view s_sRootPath = "";
+
+const rppsync::TSharedRw<TDirectory> TFileSystem::s_pRootDir = rppsync::MakeSharedRw<TDirectory>("", static_cast<mode_t>(0), nullptr);
+
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
     return 0;
 }
@@ -43,4 +49,6 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
 int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler, off_t offset,
     struct fuse_file_info* fi, enum fuse_readdir_flags flags) {
     return 0;
+}
+
 }

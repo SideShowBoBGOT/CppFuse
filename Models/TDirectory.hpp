@@ -9,15 +9,18 @@ namespace cppfuse {
 
 class TDirectory;
 
-using TRwObject = ::std::shared_ptr<::rppsync::TRwLock<TDirectory>>;
+using TFileObject = TObjectMixin<TDirectory>;
 
-class TDirectory : public TSpecializedObjectMixin<S_IFDIR, TDirectory> {
+template<auto ObjectMask>
+using TFileSpecializedObject = TSpecializedObjectMixin<ObjectMask, TDirectory>;
+
+class TDirectory : public TFileSpecializedObject<S_IFDIR> {
     public:
-    TDirectory(const std::string& name, mode_t mode);
-    [[nodiscard]] const std::vector<TRwObject>& Objects() const;
+    TDirectory(const std::string& name, mode_t mode, const rppsync::TSharedRw<TDirectory>& parent);
+    [[nodiscard]] const std::vector<rppsync::TSharedRw<TFileObject>>& Objects() const;
 
     protected:
-    std::vector<TRwObject> m_vObjects;
+    std::vector<rppsync::TSharedRw<TFileObject>> m_vObjects;
 };
 
 }

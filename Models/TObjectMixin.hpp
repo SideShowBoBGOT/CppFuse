@@ -2,21 +2,15 @@
 #define CPPFUSE_TOBJECTMIXIN_HPP
 
 #include <TRwLock.hpp>
-
 #include <string>
-#include <memory>
 
 namespace cppfuse {
 
 template<typename ParentType>
 class TObjectMixin {
     public:
-    using TStrongParent = ::std::shared_ptr<::rppsync::TRwLock<ParentType>>;
-    using TWeakParent = ::std::weak_ptr<::rppsync::TRwLock<ParentType>>;
-
-    public:
-    TObjectMixin(const std::string& name, mode_t mode)
-        : m_sName{name}, m_uMode{mode} {}
+    TObjectMixin(const std::string& name, mode_t mode, const rppsync::TSharedRw<ParentType>& parent)
+        : m_sName{name}, m_uMode{mode}, m_pParent{parent} {}
     virtual ~TObjectMixin()=default;
 
     public:
@@ -24,13 +18,13 @@ class TObjectMixin {
     virtual void Mode(mode_t mode) { this->m_uMode = mode; }
     [[nodiscard]] virtual const std::string& Name() const { return m_sName; }
     virtual void Name(const std::string& name) { m_sName = name; }
-    virtual const TWeakParent& Parent() const { return m_pParent; }
-    virtual void Parent(const TStrongParent& parent) { m_pParent = parent; }
+    virtual const rppsync::TWeakRw<ParentType>& Parent() const { return m_pParent; }
+    virtual void Parent(const rppsync::TSharedRw<ParentType>& parent) { m_pParent = parent; }
 
     protected:
     std::string m_sName;
     mode_t m_uMode = 0;
-    TWeakParent m_pParent;
+    rppsync::TWeakRw<ParentType> m_pParent;
 };
 
 }
