@@ -2,13 +2,11 @@
 
 namespace cppfuse {
 
-const static constexpr std::string_view s_sRootPath = "";
-
-const rppsync::TSharedRw<TDirectory> TFileSystem::s_pRootDir = rppsync::MakeSharedRw<TDirectory>(s_sRootPath.data(), static_cast<mode_t>(0), nullptr);
+//const rppsync::TSharedRw<TDirectory> TFileSystem::s_pRootDir = rppsync::MakeSharedRw<TDirectory>(s_sRootPath.data(), static_cast<mode_t>(0), nullptr);
 
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
-    const auto read = s_pRootDir->Read();
-    st->st_mode = read->Mode();
+//    const auto read = s_pRootDir->Read();
+//    st->st_mode = read->Mode();
     return 0;
 }
 

@@ -6,6 +6,8 @@
 #include "../Models/TDirectory.hpp"
 
 #include <fuse3/fuse.h>
+#include <filesystem>
+
 
 namespace cppfuse {
 
@@ -24,7 +26,7 @@ class TFileSystem {
     static int ReadDir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags);
 
     protected:
-    static const rppsync::TSharedRw<TDirectory> s_pRootDir;
+    //static const rppsync::TSharedRw<TDirectory> s_pRootDir;
 };
 
 }
