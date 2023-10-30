@@ -5,16 +5,15 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_FLAGS -Wall)
 
 add_executable(${PROJECT_NAME} main.cpp
-        CppFuse/Models/TFile.cpp
-        CppFuse/Models/TDirectory.cpp
-        CppFuse/Models/TLink.cpp
-        CppFuse/Controllers/TFileSystem.cpp
-        CppFuse/Models/TLink.cpp
-        CppFuse/Errors/TFSException.cpp)
+        Source/CppFuse/Models/TFile.cpp
+        Source/CppFuse/Models/TDirectory.cpp
+        Source/CppFuse/Models/TLink.cpp
+        Source/CppFuse/Controllers/TFileSystem.cpp
+        Source/CppFuse/Models/TLink.cpp
+        Source/CppFuse/Errors/TFSException.cpp)
 
 add_subdirectory(external)
-
-target_include_directories(${PROJECT_NAME} PRIVATE CppFuse)
+target_include_directories(${PROJECT_NAME} PRIVATE Source)
 
 include(FindPkgConfig)
 pkg_search_module(FUSE3 REQUIRED fuse3)

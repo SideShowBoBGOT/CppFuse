@@ -1,8 +1,8 @@
 #ifndef CPPFUSE_TDIRECTORY_HPP
 #define CPPFUSE_TDIRECTORY_HPP
 
-#include "TFileObjectMixin.hpp"
-#include "../Errors/TFSException.hpp"
+#include <CppFuse/Models/TFileObjectMixin.hpp>
+
 #include <sys/stat.h>
 #include <vector>
 #include <filesystem>
@@ -10,6 +10,8 @@
 namespace cppfuse {
 
 class TDirectory;
+class TFile;
+class TLink;
 
 using TFileObject = TFileObjectMixin<TDirectory>;
 

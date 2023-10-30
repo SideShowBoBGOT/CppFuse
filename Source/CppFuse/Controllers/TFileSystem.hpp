@@ -3,7 +3,7 @@
 
 #define FUSE_USE_VERSION 30
 
-#include "../Models/TDirectory.hpp"
+#include <CppFuse/Models/TDirectory.hpp>
 
 #include <fuse3/fuse.h>
 #include <filesystem>

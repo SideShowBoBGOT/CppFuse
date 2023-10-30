@@ -1,7 +1,7 @@
 #ifndef CPPFUSE_TLINK_HPP
 #define CPPFUSE_TLINK_HPP
 
-#include "TDirectory.hpp"
+#include <CppFuse/Models/TDirectory.hpp>
 #include <filesystem>
 
 namespace cppfuse {

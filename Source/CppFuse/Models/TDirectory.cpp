@@ -1,4 +1,4 @@
-#include "TDirectory.hpp"
+#include <CppFuse/Models/TDirectory.hpp>
 
 namespace cppfuse {
 

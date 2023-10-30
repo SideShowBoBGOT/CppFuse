@@ -1,13 +1,13 @@
 #ifndef CPPFUSE_TFILE_HPP
 #define CPPFUSE_TFILE_HPP
 
-#include "TDirectory.hpp"
+#include <CppFuse/Models/TDirectory.hpp>
 
 namespace cppfuse {
 
 class TFile : public TFileObject {
     public:
-    TFile(const std::string& name, mode_t mode, const rppsync::TSharedRw<TDirectory>& parent);
+    TFile(const std::string& name, mode_t mode, const TSharedRwLock<TDirectory>& parent);
 
     public:
     virtual NFileType Type() const override;

@@ -1,7 +1,7 @@
 #ifndef CPPFUSE_TFILEOBJECTMIXIN_HPP
 #define CPPFUSE_TFILEOBJECTMIXIN_HPP
 
-#include <Models/NNFileType.hpp>
+#include <CppFuse/Models/NNFileType.hpp>
 #include <RwLock/TRwLock.hpp>
 #include <string>
 
