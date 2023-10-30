@@ -7,6 +7,6 @@ cppfuse::TDirectory::TDirectory(const std::string& name, mode_t mode, const ASha
 
 NFileType TDirectory::Type() const { return NFileType::Directory; }
 
-const std::vector<ASharedRwLock<AFileObject>>& TDirectory::FileObjects() const { return m_vObjects; }
+const std::vector<ASharedFileVariant>& TDirectory::FileObjects() const { return m_vObjects; }
 
 }

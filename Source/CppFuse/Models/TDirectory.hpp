@@ -2,25 +2,17 @@
 #define CPPFUSE_TDIRECTORY_HPP
 
 #include <CppFuse/Models/TFileObjectMixin.hpp>
+#include <CppFuse/Models/ASharedFileVariant.hpp>
 
 #include <sys/stat.h>
 #include <vector>
 #include <filesystem>
-#include <variant>
 
 namespace cppfuse {
 
 class TDirectory;
-class TFile;
-class TLink;
 
 using AFileObject = TFileObjectMixin<TDirectory>;
-
-using ASharedFileVariant = std::variant<
-    ASharedRwLock<TDirectory>,
-    ASharedRwLock<TFile>,
-    ASharedRwLock<TLink>
->;
 
 class TDirectory : public AFileObject {
     public:
