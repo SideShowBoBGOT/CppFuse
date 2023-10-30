@@ -14,9 +14,12 @@ class TFSException;
 template<typename ReturnType>
 using TFSExpected = std::expected<ReturnType, TFSException>;
 
+using TStdPath = std::filesystem::path;
+using TStdPathIt = std::filesystem::path::iterator;
+
 class TFSException : public std::exception {
     public:
-    TFSException(std::filesystem::path::iterator begin, std::filesystem::path::iterator end, NFSExceptionType type);
+    TFSException(TStdPathIt begin, TStdPathIt end, NFSExceptionType type);
     virtual const char* what() const noexcept override;
     [[nodiscard]] virtual NFSExceptionType Type() const;
 

@@ -4,7 +4,7 @@
 
 namespace cppfuse {
 
-cppfuse::TFSException::TFSException(std::filesystem::path::iterator begin, std::filesystem::path::iterator end,
+cppfuse::TFSException::TFSException(TStdPathIt begin, TStdPathIt end,
     NFSExceptionType type) : m_xType{type} {
     auto path = std::filesystem::path();
     for(auto it = begin; it != end; ++it) path.append(it->c_str());

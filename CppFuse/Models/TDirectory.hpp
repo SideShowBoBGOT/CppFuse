@@ -15,15 +15,14 @@ using TFileObject = TFileObjectMixin<TDirectory>;
 
 class TDirectory : public TFileObject {
     public:
-    TDirectory(const std::string& name, mode_t mode, const rppsync::TSharedRw<TDirectory>& parent);
+    TDirectory(const std::string& name, mode_t mode, const TSharedRwLock<TDirectory>& parent);
 
     public:
     virtual NFileType Type() const override;
-    const std::vector<rppsync::TSharedRw<TFileObject>>& Objects() const;
-    TFSExpected<rppsync::TSharedRw<TFileObject>> Find(const std::filesystem::path& path) const;
+    const std::vector<TSharedRwLock<TFileObject>>& FileObjects() const;
 
     protected:
-    std::vector<rppsync::TSharedRw<TFileObject>> m_vObjects;
+    std::vector<TSharedRwLock<TFileObject>> m_vObjects;
 };
 
 }

@@ -3,6 +3,8 @@
 
 #include <sys/stat.h>
 
+namespace cppfuse {
+
 namespace NNFileType {
     enum NFileType {
         None,
@@ -13,5 +15,7 @@ namespace NNFileType {
 }
 
 using NFileType = NNFileType::NFileType;
+
+}
 
 #endif //CPPFUSE_NNFILETYPE_HPP

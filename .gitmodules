@@ -1,9 +1,9 @@
 [submodule "external/gsl"]
 	path = external/gsl
 	url = https://github.com/microsoft/GSL
-[submodule "external/RppSync"]
-	path = external/RppSync
-	url = https://github.com/SideShowBoBGOT/RppSync
 [submodule "external/magic_enum"]
 	path = external/magic_enum
 	url = https://github.com/Neargye/magic_enum
+[submodule "external/RwLock"]
+	path = external/RwLock
+	url = https://github.com/SideShowBoBGOT/RwLock
