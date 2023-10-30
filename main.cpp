@@ -1,4 +1,4 @@
-#include "Controllers/TFileSystem.hpp"
+#include <CppFuse/Controllers/TFileSystem.hpp>
 
 fuse_operations FileSystemOperations = {
     .getattr = cppfuse::TFileSystem::GetAttr,

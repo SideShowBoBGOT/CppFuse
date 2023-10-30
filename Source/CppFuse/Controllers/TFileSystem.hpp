@@ -8,7 +8,6 @@
 #include <fuse3/fuse.h>
 #include <filesystem>
 
-
 namespace cppfuse {
 
 class TFileSystem {
@@ -26,15 +25,15 @@ class TFileSystem {
     static int ReadDir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags);
 
     protected:
-    // Find
-    static TFSExpected<rppsync::TSharedRw<TFileObject>> Find(const TStdPath& path);
-    static TFSExpected<rppsync::TSharedRw<TFileObject>> DoFind(const TStdPath& path, TStdPathIt it,
-        const rppsync::TSharedRw<TDirectory>& dir);
-    static TFSExpected<rppsync::TSharedRw<TFileObject>> ContinueFind(const TStdPath& path, TStdPathIt it,
-        const rppsync::TSharedRw<TFileObject>& obj);
+//    // Find
+//    static TFSExpected<rppsync::TSharedRw<AFileObject>> Find(const TStdPath& path);
+//    static TFSExpected<rppsync::TSharedRw<AFileObject>> DoFind(const TStdPath& path, TStdPathIt it,
+//        const rppsync::TSharedRw<TDirectory>& dir);
+//    static TFSExpected<rppsync::TSharedRw<AFileObject>> ContinueFind(const TStdPath& path, TStdPathIt it,
+//        const rppsync::TSharedRw<AFileObject>& obj);
 
     protected:
-    static const rppsync::TSharedRw<TDirectory> s_pRootDir;
+    static const ASharedRwLock<TDirectory> s_pRootDir;
 };
 
 }

@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <vector>
 #include <filesystem>
+#include <variant>
 
 namespace cppfuse {
 
@@ -13,18 +14,24 @@ class TDirectory;
 class TFile;
 class TLink;
 
-using TFileObject = TFileObjectMixin<TDirectory>;
+using AFileObject = TFileObjectMixin<TDirectory>;
 
-class TDirectory : public TFileObject {
+using ASharedFileVariant = std::variant<
+    ASharedRwLock<TDirectory>,
+    ASharedRwLock<TFile>,
+    ASharedRwLock<TLink>
+>;
+
+class TDirectory : public AFileObject {
     public:
-    TDirectory(const std::string& name, mode_t mode, const TSharedRwLock<TDirectory>& parent);
+    TDirectory(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent);
 
     public:
     virtual NFileType Type() const override;
-    const std::vector<TSharedRwLock<TFileObject>>& FileObjects() const;
+    const std::vector<ASharedFileVariant>& FileObjects() const;
 
     protected:
-    std::vector<TSharedRwLock<TFileObject>> m_vObjects;
+    std::vector<ASharedFileVariant> m_vObjects;
 };
 
 }

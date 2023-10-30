@@ -6,9 +6,9 @@
 
 namespace cppfuse {
 
-class TLink : public TFileObject {
+class TLink : public AFileObject {
     public:
-    TLink(const std::string& name, mode_t mode, const TSharedRwLock<TDirectory>& parent,
+    TLink(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent,
         const std::filesystem::path& linkTo);
 
     public:

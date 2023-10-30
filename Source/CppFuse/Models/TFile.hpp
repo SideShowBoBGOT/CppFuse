@@ -5,9 +5,9 @@
 
 namespace cppfuse {
 
-class TFile : public TFileObject {
+class TFile : public AFileObject {
     public:
-    TFile(const std::string& name, mode_t mode, const TSharedRwLock<TDirectory>& parent);
+    TFile(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent);
 
     public:
     virtual NFileType Type() const override;
