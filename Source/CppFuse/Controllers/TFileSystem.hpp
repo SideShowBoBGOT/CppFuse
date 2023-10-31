@@ -28,7 +28,7 @@ class TFileSystem {
     protected:
     // Find
     static AFSExpected<ASharedFileVariant> Find(const AStdPath& path);
-    static AFSExpected<ASharedFileVariant> RecursiveFindStepOne(const AStdPath& path, AStdPathIt it,
+    static AFSExpected<ASharedFileVariant> RecursiveFindStepOne(const AStdPath& path, const AStdPathIt& it,
         const ASharedRwLock<TDirectory>& dir);
     static AFSExpected<ASharedFileVariant> RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it,
         const ASharedFileVariant& obj);
