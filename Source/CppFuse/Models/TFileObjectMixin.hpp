@@ -22,6 +22,11 @@ class TFileObjectMixin {
     const AWeakRwLock<ParentType>& Parent() const { return this->m_pParent; }
     void Parent(const ASharedRwLock<ParentType>& parent) { this->m_pParent = parent; }
 
+    public:
+    virtual void FillAttributes(struct stat* st) const {
+        st->st_mode = Mode();
+    }
+
     protected:
     std::string m_sName;
     mode_t m_uMode = 0;

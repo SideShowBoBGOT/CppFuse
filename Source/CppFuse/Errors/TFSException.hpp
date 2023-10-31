@@ -21,7 +21,7 @@ class TFSException : public std::exception {
     public:
     TFSException(AStdPathIt begin, AStdPathIt end, NFSExceptionType type);
     virtual const char* what() const noexcept override;
-    [[nodiscard]] virtual NFSExceptionType Type() const;
+    [[nodiscard]] NFSExceptionType Type() const;
 
     protected:
     NFSExceptionType m_xType = NFSExceptionType::NotDirectory;

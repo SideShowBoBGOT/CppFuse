@@ -20,6 +20,7 @@ class TDirectory : public TFileObjectMixin<TDirectory, NFileType::Directory> {
 
     public:
     const std::vector<ASharedFileVariant>& FileObjects() const;
+    virtual void FillAttributes(struct stat* st) const override;
 
     protected:
     std::vector<ASharedFileVariant> m_vObjects;

@@ -11,6 +11,7 @@ class TFile : public TFileObjectMixin<TDirectory, NFileType::File> {
 
     public:
     const std::vector<char>& Content() const;
+    virtual void FillAttributes(struct stat* st) const override;
 
     protected:
     std::vector<char> m_vContent;

@@ -1,9 +1,10 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
+#include <CppFuse/Helpers/SOverloadVariant.hpp>
 #include <CppFuse/Models/TFile.hpp>
 #include <CppFuse/Models/TLink.hpp>
 
-#include <array>
 #include <algorithm>
+#include <array>
 
 namespace cppfuse {
 
@@ -15,12 +16,17 @@ static constexpr std::string_view s_sParentName = "..";
 const ASharedRwLock<TDirectory> TFileSystem::s_pRootDir = MakeSharedRwLock<TDirectory>(s_sRootPath.data(), static_cast<mode_t>(0), nullptr);
 
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
-    const auto read = s_pRootDir->Read();
-    st->st_mode = read->Mode();
+    const auto result = Find(path);
+    if(!result) return result.error().Type();
+
+    std::visit([st] (const auto& var) {
+        var->Read()->FillAttributes(st);
+    }, result.value());
     return 0;
 }
 
 int TFileSystem::ReadLink(const char* path, char* buffer, size_t size) {
+
     return 0;
 }
 
@@ -95,6 +101,18 @@ AFSExpected<ASharedFileVariant> TFileSystem::RecursiveFindStepTwo(const AStdPath
         return RecursiveFindStepOne(path, ++it, *dir);
     }
     return std::unexpected(TFSException(path.begin(), it, NFSExceptionType::NotDirectory));
+}
+
+AFSExpected<ASharedRwLock<TDirectory>> TFileSystem::FindDir(const AStdPath& path) {
+    return FindGeneral<TDirectory, NFSExceptionType::NotDirectory>(path);
+}
+
+AFSExpected<ASharedRwLock<TLink>> TFileSystem::FindLink(const std::filesystem::path& path) {
+    return FindGeneral<TLink, NFSExceptionType::NotLink>(path);
+}
+
+AFSExpected<ASharedRwLock<TFile>> TFileSystem::FindFile(const std::filesystem::path& path) {
+    return FindGeneral<TFile, NFSExceptionType::NotFile>(path);
 }
 
 }

@@ -13,6 +13,7 @@ class TLink : public TFileObjectMixin<TDirectory, NFileType::Link> {
 
     public:
     const std::filesystem::path& LinkTo() const;
+    virtual void FillAttributes(struct stat* st) const override;
 
     protected:
     std::filesystem::path m_xLinkTo;

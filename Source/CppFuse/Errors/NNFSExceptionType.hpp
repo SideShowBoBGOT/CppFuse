@@ -1,12 +1,16 @@
 #ifndef CPPFUSE_NNFSEXCEPTIONTYPE_HPP
 #define CPPFUSE_NNFSEXCEPTIONTYPE_HPP
 
+#include <cerrno>
+
 namespace cppfuse {
 
 namespace NNFSExceptionType {
     enum NFSExceptionType {
-        FileNotExist,
-        NotDirectory
+        FileNotExist = -ENOENT,
+        NotDirectory = -ENOTDIR,
+        NotLink = -ENOLINK,
+        NotFile = -ENOENT
     };
 }
 
