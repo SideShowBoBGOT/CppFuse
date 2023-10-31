@@ -3,10 +3,12 @@
 
 #include <CppFuse/Models/TFileObjectMixin.hpp>
 #include <CppFuse/Models/ASharedFileVariant.hpp>
+#include <CppFuse/Errors/TFSException.hpp>
 
 #include <sys/stat.h>
 #include <vector>
 #include <filesystem>
+#include <expected>
 
 namespace cppfuse {
 

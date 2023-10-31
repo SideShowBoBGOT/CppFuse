@@ -1,5 +1,10 @@
 #include <CppFuse/Models/TDirectory.hpp>
 
+
+#include <algorithm>
+#include <ranges>
+#include <array>
+
 namespace cppfuse {
 
 cppfuse::TDirectory::TDirectory(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent)
