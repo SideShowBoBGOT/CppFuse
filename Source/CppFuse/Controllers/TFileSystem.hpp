@@ -3,7 +3,8 @@
 
 #define FUSE_USE_VERSION 30
 
-#include <CppFuse/Models/TDirectory.hpp>
+#include <CppFuse/Models/ASharedFileVariant.hpp>
+#include <CppFuse/Errors/TFSException.hpp>
 
 #include <fuse3/fuse.h>
 #include <filesystem>
@@ -25,12 +26,12 @@ class TFileSystem {
     static int ReadDir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags);
 
     protected:
-//    // Find
-//    static AFSExpected<rppsync::TSharedRw<AFileObject>> Find(const AStdPath& path);
-//    static AFSExpected<rppsync::TSharedRw<AFileObject>> DoFind(const AStdPath& path, AStdPathIt it,
-//        const rppsync::TSharedRw<TDirectory>& dir);
-//    static AFSExpected<rppsync::TSharedRw<AFileObject>> ContinueFind(const AStdPath& path, AStdPathIt it,
-//        const rppsync::TSharedRw<AFileObject>& obj);
+    // Find
+    static AFSExpected<ASharedFileVariant> Find(const AStdPath& path);
+    static AFSExpected<ASharedFileVariant> RecursiveFindStepOne(const AStdPath& path, AStdPathIt it,
+        const ASharedRwLock<TDirectory>& dir);
+    static AFSExpected<ASharedFileVariant> RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it,
+        const ASharedFileVariant& obj);
 
     protected:
     static const ASharedRwLock<TDirectory> s_pRootDir;

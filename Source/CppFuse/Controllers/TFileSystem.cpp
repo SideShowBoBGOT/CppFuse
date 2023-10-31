@@ -1,11 +1,16 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
+#include <CppFuse/Models/TFile.hpp>
+#include <CppFuse/Models/TLink.hpp>
+
 #include <array>
 #include <algorithm>
 
 namespace cppfuse {
 
 static constexpr std::string_view s_sRootPath = "/";
-
+static constexpr std::string_view s_sEmptyName = "";
+static constexpr std::string_view s_sSelfName = ".";
+static constexpr std::string_view s_sParentName = "..";
 
 const ASharedRwLock<TDirectory> TFileSystem::s_pRootDir = MakeSharedRwLock<TDirectory>(s_sRootPath.data(), static_cast<mode_t>(0), nullptr);
 
@@ -56,45 +61,43 @@ int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler,
     return 0;
 }
 
-//AFSExpected<rppsync::TSharedRw<AFileObject>> TFileSystem::Find(const AStdPath& path) {
-//    return DoFind(path, path.begin(), s_pRootDir);
-//}
-//
-//AFSExpected<rppsync::TSharedRw<AFileObject>> TFileSystem::DoFind(const AStdPath& path,
-//    AStdPathIt it, const rppsync::TSharedRw<TDirectory>& dir) {
-//
-//    const auto dirRead = dir->Read();
-//    const auto ownName = std::string_view(dirRead->Name());
-//    const auto itName = std::string_view(it->c_str());
-//    const auto selfNames = std::array{s_sSelfName, s_sEmptyName, ownName};
-//    if(std::ranges::contains(selfNames, itName)) {
-//
-//        continue;
-//    }
-//    const auto childIt = std::ranges::find_if(dirRead->FileObjects(),
-//        [itName](const auto& f) { return f->Read()->Name() == itName; });
-//    if(childIt == dirRead->FileObjects().end()) {
-//        return std::unexpected(TFSException(path.begin(), it, NFSExceptionType::FileNotExist));
-//    }
-//
-//    const auto& file = *childIt;
-//
-//
-//
-//    return cppfuse::AFSExpected<rppsync::TSharedRw<AFileObject>>();
-//}
-//
-//AFSExpected<rppsync::TSharedRw<AFileObject>> TFileSystem::ContinueFind(const AStdPath& path,
-//    AStdPathIt it, const rppsync::TSharedRw<AFileObject>& obj) {
-//
-//    if(std::distance(it, path.end()) == 1) {
-//        return obj;
-//    }
-//
-//    if(obj->Read()->Type() == NFileType::Directory) {
-//        DoFind(path, ++it, obj)
-//    }
-//    return std::unexpected(TFSException(path.begin(), it, NFSExceptionType::NotDirectory));
-//}
+AFSExpected<ASharedFileVariant> TFileSystem::Find(const AStdPath& path) {
+    return RecursiveFindStepOne(path, path.begin(), s_pRootDir);
+}
+
+AFSExpected<ASharedFileVariant> TFileSystem::RecursiveFindStepOne(const AStdPath& path, AStdPathIt it, const ASharedRwLock<TDirectory>& dir) {
+
+    const auto dirRead = dir->Read();
+    const auto ownName = std::string_view(dirRead->Name());
+    const auto itName = std::string_view(it->c_str());
+    const auto selfNames = std::array{s_sSelfName, s_sEmptyName, ownName};
+
+    if(std::ranges::contains(selfNames, itName)) {
+        return RecursiveFindStepTwo(path, it, dir);
+    }
+    const auto& fileObjects = dirRead->FileObjects();
+    const auto childIt = std::ranges::find_if(fileObjects,
+        [&itName](const auto& f) {
+            return std::visit([&itName](const auto& f) {
+                return f->Read()->Name() == itName;
+            }, f);
+        });
+    if(childIt == fileObjects.end()) {
+        return std::unexpected(TFSException(path.begin(), it, NFSExceptionType::FileNotExist));
+    }
+    return RecursiveFindStepTwo(path, it, *childIt);
+}
+
+AFSExpected<ASharedFileVariant> TFileSystem::RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it, const ASharedFileVariant& obj) {
+
+    if(std::distance(it, path.end()) == 1) {
+        return obj;
+    }
+
+    if(obj->Read()->Type() == NFileType::Directory) {
+        RecursiveFindStepOne(path, ++it, obj)
+    }
+    return std::unexpected(TFSException(path.begin(), it, NFSExceptionType::NotDirectory));
+}
 
 }
