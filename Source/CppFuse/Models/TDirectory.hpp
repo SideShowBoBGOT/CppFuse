@@ -12,14 +12,11 @@ namespace cppfuse {
 
 class TDirectory;
 
-using AFileObject = TFileObjectMixin<TDirectory>;
-
-class TDirectory : public AFileObject {
+class TDirectory : public TFileObjectMixin<TDirectory, NFileType::Directory> {
     public:
     TDirectory(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent);
 
     public:
-    virtual NFileType Type() const override;
     const std::vector<ASharedFileVariant>& FileObjects() const;
 
     protected:

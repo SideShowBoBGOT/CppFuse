@@ -6,13 +6,12 @@
 
 namespace cppfuse {
 
-class TLink : public AFileObject {
+class TLink : public TFileObjectMixin<TDirectory, NFileType::Link> {
     public:
     TLink(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent,
         const std::filesystem::path& linkTo);
 
     public:
-    virtual NFileType Type() const override;
     const std::filesystem::path& LinkTo() const;
 
     protected:

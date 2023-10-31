@@ -5,12 +5,11 @@
 
 namespace cppfuse {
 
-class TFile : public AFileObject {
+class TFile : public TFileObjectMixin<TDirectory, NFileType::File> {
     public:
     TFile(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent);
 
     public:
-    virtual NFileType Type() const override;
     const std::vector<char>& Content() const;
 
     protected:

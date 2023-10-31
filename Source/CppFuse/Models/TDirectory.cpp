@@ -3,9 +3,7 @@
 namespace cppfuse {
 
 cppfuse::TDirectory::TDirectory(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent)
-    : AFileObject(name, mode, parent) {}
-
-NFileType TDirectory::Type() const { return NFileType::Directory; }
+    : TFileObjectMixin<TDirectory, NFileType::Directory>(name, mode, parent) {}
 
 const std::vector<ASharedFileVariant>& TDirectory::FileObjects() const { return m_vObjects; }
 

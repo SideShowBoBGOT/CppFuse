@@ -7,21 +7,20 @@
 
 namespace cppfuse {
 
-template<typename ParentType>
+template<typename ParentType, auto FileType>
 class TFileObjectMixin {
     public:
     TFileObjectMixin(const std::string& name, mode_t mode, const ASharedRwLock<ParentType>& parent)
         : m_sName{name}, m_uMode{mode}, m_pParent{parent} {}
-    virtual ~TFileObjectMixin()=default;
 
     public:
-    virtual NFileType Type() const { return NNFileType::None; };
-    virtual mode_t Mode() const { return this->m_uMode; }
-    virtual void Mode(mode_t mode) { this->m_uMode = mode | Type(); }
-    virtual const std::string& Name() const { return this->m_sName; }
-    virtual void SetName(const std::string& name) { this->m_sName = name; }
-    virtual const AWeakRwLock<ParentType>& Parent() const { return this->m_pParent; }
-    virtual void SetParent(const ASharedRwLock<ParentType>& parent) { this->m_pParent = parent; }
+    NFileType Type() const { return FileType; };
+    mode_t Mode() const { return this->m_uMode; }
+    void Mode(mode_t mode) { this->m_uMode = mode | FileType; }
+    const std::string& Name() const { return this->m_sName; }
+    void Name(const std::string& name) { this->m_sName = name; }
+    const AWeakRwLock<ParentType>& Parent() const { return this->m_pParent; }
+    void Parent(const ASharedRwLock<ParentType>& parent) { this->m_pParent = parent; }
 
     protected:
     std::string m_sName;
