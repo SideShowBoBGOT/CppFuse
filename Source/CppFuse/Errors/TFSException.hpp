@@ -12,14 +12,14 @@ namespace cppfuse {
 class TFSException;
 
 template<typename ReturnType>
-using TFSExpected = std::expected<ReturnType, TFSException>;
+using AFSExpected = std::expected<ReturnType, TFSException>;
 
-using TStdPath = std::filesystem::path;
-using TStdPathIt = std::filesystem::path::iterator;
+using AStdPath = std::filesystem::path;
+using AStdPathIt = std::filesystem::path::iterator;
 
 class TFSException : public std::exception {
     public:
-    TFSException(TStdPathIt begin, TStdPathIt end, NFSExceptionType type);
+    TFSException(AStdPathIt begin, AStdPathIt end, NFSExceptionType type);
     virtual const char* what() const noexcept override;
     [[nodiscard]] virtual NFSExceptionType Type() const;
 

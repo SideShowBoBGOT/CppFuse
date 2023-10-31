@@ -5,9 +5,7 @@
 namespace cppfuse {
 
 static constexpr std::string_view s_sRootPath = "/";
-static const std::string_view s_sEmptyName = "";
-static const std::string_view s_sSelfName = ".";
-static const std::string_view s_sParentName = "..";
+
 
 const ASharedRwLock<TDirectory> TFileSystem::s_pRootDir = MakeSharedRwLock<TDirectory>(s_sRootPath.data(), static_cast<mode_t>(0), nullptr);
 
@@ -58,12 +56,12 @@ int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler,
     return 0;
 }
 
-//TFSExpected<rppsync::TSharedRw<AFileObject>> TFileSystem::Find(const TStdPath& path) {
+//AFSExpected<rppsync::TSharedRw<AFileObject>> TFileSystem::Find(const AStdPath& path) {
 //    return DoFind(path, path.begin(), s_pRootDir);
 //}
 //
-//TFSExpected<rppsync::TSharedRw<AFileObject>> TFileSystem::DoFind(const TStdPath& path,
-//    TStdPathIt it, const rppsync::TSharedRw<TDirectory>& dir) {
+//AFSExpected<rppsync::TSharedRw<AFileObject>> TFileSystem::DoFind(const AStdPath& path,
+//    AStdPathIt it, const rppsync::TSharedRw<TDirectory>& dir) {
 //
 //    const auto dirRead = dir->Read();
 //    const auto ownName = std::string_view(dirRead->Name());
@@ -83,11 +81,11 @@ int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler,
 //
 //
 //
-//    return cppfuse::TFSExpected<rppsync::TSharedRw<AFileObject>>();
+//    return cppfuse::AFSExpected<rppsync::TSharedRw<AFileObject>>();
 //}
 //
-//TFSExpected<rppsync::TSharedRw<AFileObject>> TFileSystem::ContinueFind(const TStdPath& path,
-//    TStdPathIt it, const rppsync::TSharedRw<AFileObject>& obj) {
+//AFSExpected<rppsync::TSharedRw<AFileObject>> TFileSystem::ContinueFind(const AStdPath& path,
+//    AStdPathIt it, const rppsync::TSharedRw<AFileObject>& obj) {
 //
 //    if(std::distance(it, path.end()) == 1) {
 //        return obj;

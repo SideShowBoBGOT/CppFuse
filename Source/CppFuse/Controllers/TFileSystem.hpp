@@ -26,10 +26,10 @@ class TFileSystem {
 
     protected:
 //    // Find
-//    static TFSExpected<rppsync::TSharedRw<AFileObject>> Find(const TStdPath& path);
-//    static TFSExpected<rppsync::TSharedRw<AFileObject>> DoFind(const TStdPath& path, TStdPathIt it,
+//    static AFSExpected<rppsync::TSharedRw<AFileObject>> Find(const AStdPath& path);
+//    static AFSExpected<rppsync::TSharedRw<AFileObject>> DoFind(const AStdPath& path, AStdPathIt it,
 //        const rppsync::TSharedRw<TDirectory>& dir);
-//    static TFSExpected<rppsync::TSharedRw<AFileObject>> ContinueFind(const TStdPath& path, TStdPathIt it,
+//    static AFSExpected<rppsync::TSharedRw<AFileObject>> ContinueFind(const AStdPath& path, AStdPathIt it,
 //        const rppsync::TSharedRw<AFileObject>& obj);
 
     protected:

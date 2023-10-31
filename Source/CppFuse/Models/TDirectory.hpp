@@ -3,10 +3,12 @@
 
 #include <CppFuse/Models/TFileObjectMixin.hpp>
 #include <CppFuse/Models/ASharedFileVariant.hpp>
+#include <CppFuse/Errors/TFSException.hpp>
 
 #include <sys/stat.h>
 #include <vector>
 #include <filesystem>
+#include <expected>
 
 namespace cppfuse {
 
@@ -18,6 +20,10 @@ class TDirectory : public TFileObjectMixin<TDirectory, NFileType::Directory> {
 
     public:
     const std::vector<ASharedFileVariant>& FileObjects() const;
+    AFSExpected<ASharedFileVariant> Find(const AStdPath& path) const;
+
+    protected:
+    AFSExpected<ASharedFileVariant> RecursiveFind(const AStdPath& path, AStdPathIt it) const;
 
     protected:
     std::vector<ASharedFileVariant> m_vObjects;
