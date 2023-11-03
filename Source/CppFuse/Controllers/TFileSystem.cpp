@@ -69,7 +69,17 @@ int TFileSystem::Unlink(const char* path) {
     if(std::holds_alternative<ASharedRwLock<TDirectory>>(obj)) {
         return NNFSExceptionType::NotFile;
     }
-    const auto parentDir = std::visit()
+    std::visit([](const auto& obj) {
+        const auto objRead = obj->Read();
+        const auto parentDir = objRead->Parent().lock();
+        if(!parentDir) return;
+        const auto parentDirWrite = parentDir->Write();
+        auto& fileObjects = parentDirWrite->FileObjects();
+        const auto& objName = objRead->Name();
+        fileObjects.erase(std::ranges::find_if(fileObjects, [&objName](const auto& el) {
+            return std::visit([](const auto& obj) { return obj->Read()->Name(); }, el) == objName;
+        }));
+    }, obj);
 
     return 0;
 }

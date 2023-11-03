@@ -10,7 +10,8 @@ add_executable(${PROJECT_NAME} main.cpp
         Source/CppFuse/Models/TLink.cpp
         Source/CppFuse/Controllers/TFileSystem.cpp
         Source/CppFuse/Models/TLink.cpp
-        Source/CppFuse/Errors/TFSException.cpp)
+        Source/CppFuse/Errors/TFSException.cpp
+        Source/CppFuse/Controllers/TFinder.cpp)
 
 add_subdirectory(external)
 target_include_directories(${PROJECT_NAME} PRIVATE Source)
