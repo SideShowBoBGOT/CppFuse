@@ -10,8 +10,8 @@ class TFile : public TFileObjectMixin<TDirectory, NFileType::File> {
     TFile(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent);
 
     public:
+    std::vector<char>& Content();
     const std::vector<char>& Content() const;
-    virtual void FillAttributes(struct stat* st) const override;
 
     protected:
     std::vector<char> m_vContent;

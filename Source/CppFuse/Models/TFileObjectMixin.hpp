@@ -3,7 +3,10 @@
 
 #include <CppFuse/Models/NNFileType.hpp>
 #include <CppFuse/Helpers/ASharedLock.hpp>
+
+#include <type_traits>
 #include <string>
+#include <utility>
 
 namespace cppfuse {
 
@@ -11,26 +14,24 @@ template<typename ParentType, auto FileType>
 class TFileObjectMixin {
     public:
     TFileObjectMixin(const std::string& name, mode_t mode, const ASharedRwLock<ParentType>& parent)
-        : m_sName{name}, m_uMode{mode}, m_pParent{parent} {}
+        : m_sName{name}, m_pParent{parent} { Mode(mode); }
 
     public:
-    NFileType Type() const { return FileType; };
-    mode_t Mode() const { return this->m_uMode; }
-    void Mode(mode_t mode) { this->m_uMode = mode | FileType; }
+    mode_t Mode() const { return m_uMode; }
+    void Mode(mode_t mode) { m_uMode = mode | FileType; }
+
+    public:
     const std::string& Name() const { return this->m_sName; }
     void Name(const std::string& name) { this->m_sName = name; }
-    const AWeakRwLock<ParentType>& Parent() const { return this->m_pParent; }
-    void Parent(const ASharedRwLock<ParentType>& parent) { this->m_pParent = parent; }
 
     public:
-    virtual void FillAttributes(struct stat* st) const {
-        st->st_mode = Mode();
-    }
+    const AWeakRwLock<ParentType>& Parent() const { return this->m_pParent; }
+    void Parent(const ASharedRwLock<ParentType>& parent) { this->m_pParent = parent; }
 
     protected:
     std::string m_sName;
     mode_t m_uMode = 0;
-    AWeakRwLock<ParentType> m_pParent;
+    ASharedRwLock<ParentType> m_pParent;
 };
 
 }

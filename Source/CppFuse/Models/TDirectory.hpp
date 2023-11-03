@@ -19,8 +19,8 @@ class TDirectory : public TFileObjectMixin<TDirectory, NFileType::Directory> {
     TDirectory(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent);
 
     public:
+    std::vector<ASharedFileVariant>& FileObjects();
     const std::vector<ASharedFileVariant>& FileObjects() const;
-    virtual void FillAttributes(struct stat* st) const override;
 
     protected:
     std::vector<ASharedFileVariant> m_vObjects;
