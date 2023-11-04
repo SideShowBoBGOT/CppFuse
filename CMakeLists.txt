@@ -5,11 +5,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_FLAGS -Wall)
 
 add_executable(${PROJECT_NAME} main.cpp
-        Source/CppFuse/Models/TFile.cpp
-        Source/CppFuse/Models/TDirectory.cpp
-        Source/CppFuse/Models/TLink.cpp
+        Source/CppFuse/Models/TFileSystemObjects.cpp
         Source/CppFuse/Controllers/TFileSystem.cpp
-        Source/CppFuse/Models/TLink.cpp
         Source/CppFuse/Errors/TFSException.cpp
         Source/CppFuse/Controllers/TFinder.cpp)
 

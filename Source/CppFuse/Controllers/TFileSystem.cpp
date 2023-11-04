@@ -85,6 +85,11 @@ int TFileSystem::Unlink(const char* path) {
 }
 
 int TFileSystem::RmDir(const char* path) {
+    const auto objPath = std::filesystem::path(path);
+    const auto objRes = TFinder::FindDir(objPath);
+    if(!objRes) return objRes.error().Type();
+
+
     return 0;
 }
 

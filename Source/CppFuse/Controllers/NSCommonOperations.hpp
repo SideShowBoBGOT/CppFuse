@@ -6,11 +6,7 @@
 
 namespace cppfuse {
 
-namespace TCommonOperations {
 
-
-
-};
 
 }
 
