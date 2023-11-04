@@ -2,48 +2,32 @@
 
 namespace cppfuse {
 
-inline void UpdateParent(AWeakRwLock<SDirectory>& outParent, const ASharedRwLock<SDirectory>& parent) { outParent = parent; }
+template<> std::string SInfo::* AGetName::s_pFieldPtr = nullptr;
+template<> mode_t SInfo::* AGetMode::s_pFieldPtr = nullptr;
+template<> AWeakRwLock<SDirectory> SInfo::* AGetParent::s_pFieldPtr = nullptr;
+template<> std::string SInfo::* ASetName::s_pFieldPtr = nullptr;
+template<> mode_t SInfo::* ASetMode::s_pFieldPtr = nullptr;
+template<> AWeakRwLock<SDirectory> SInfo::* ASetParent::s_pFieldPtr = nullptr;
 
-void SetParent::operator()(const ASharedRwLock<SDirectory>& var, const ASharedRwLock<SDirectory>& parent) { SetParent{}(var->Write(), parent); }
-void SetParent::operator()(const ASharedRwLock<SFile>& var, const ASharedRwLock<SDirectory>& parent) { SetParent{}(var->Write(), parent); }
-void SetParent::operator()(const ASharedRwLock<SLink>& var, const ASharedRwLock<SDirectory>& parent) { SetParent{}(var->Write(), parent); }
-void SetParent::operator()(const rwl::TRwLockWriteGuard<SDirectory>& var, const ASharedRwLock<SDirectory>& parent) { UpdateParent(var->m_pParent, parent); }
-void SetParent::operator()(const rwl::TRwLockWriteGuard<SFile>& var, const ASharedRwLock<SDirectory>& parent) { UpdateParent(var->m_pParent, parent); }
-void SetParent::operator()(const rwl::TRwLockWriteGuard<SLink>& var, const ASharedRwLock<SDirectory>& parent) { UpdateParent(var->m_pParent, parent); }
+template<> int AGetName::Init() { s_pFieldPtr = &SInfo::m_sName; return 0; }
+template<> int AGetMode::Init() { s_pFieldPtr = &SInfo::m_uMode; return 0; }
+template<> int AGetParent::Init() { s_pFieldPtr = &SInfo::m_pParent; return 0; }
 
-inline void UpdateName(std::string& outName, const std::string& name) { outName = name; }
+template<> int ASetName::Init() { s_pFieldPtr = &SInfo::m_sName; return 0; }
+template<> int ASetMode::Init() { s_pFieldPtr = &SInfo::m_uMode; return 0; }
+template<> int ASetParent::Init() { s_pFieldPtr = &SInfo::m_pParent; return 0; }
 
-void SetName::operator()(const ASharedRwLock<SDirectory>& var, const std::string& name) { SetName{}(var->Write(), name); }
-void SetName::operator()(const ASharedRwLock<SFile>& var, const std::string& name) { SetName{}(var->Write(), name); }
-void SetName::operator()(const ASharedRwLock<SLink>& var, const std::string& name) { SetName{}(var->Write(), name); }
-void SetName::operator()(const rwl::TRwLockWriteGuard<SDirectory>& var, const std::string& name) { UpdateName(var->m_sName, name); }
-void SetName::operator()(const rwl::TRwLockWriteGuard<SFile>& var, const std::string& name) { UpdateName(var->m_sName, name); }
-void SetName::operator()(const rwl::TRwLockWriteGuard<SLink>& var, const std::string& name) { UpdateName(var->m_sName, name); }
-
-NFileType GetType::operator()(const ASharedRwLock<SDirectory>& var) { return NFileType::Directory; }
-NFileType GetType::operator()(const ASharedRwLock<SFile>& var) { return NFileType::File; }
-NFileType GetType::operator()(const ASharedRwLock<SLink>& var) { return NFileType::Link; }
-NFileType GetType::operator()(const rwl::TRwLockReadGuard<SDirectory>& var) { return NFileType::Directory; }
-NFileType GetType::operator()(const rwl::TRwLockReadGuard<SFile>& var) { return NFileType::File; }
-NFileType GetType::operator()(const rwl::TRwLockReadGuard<SLink>& var) { return NFileType::Link; }
-NFileType GetType::operator()(const rwl::TRwLockWriteGuard<SDirectory>& var) { return NFileType::Directory; }
-NFileType GetType::operator()(const rwl::TRwLockWriteGuard<SFile>& var) { return NFileType::File; }
-NFileType GetType::operator()(const rwl::TRwLockWriteGuard<SLink>& var) { return NFileType::Link; }
-
-template<typename T>
-inline void UpdateMode(mode_t& outMode, mode_t mode, const T& var) { outMode = mode | GetType{}(var); }
-
-void SetMode::operator()(const ASharedRwLock<SDirectory>& var, mode_t mode) { SetMode{}(var->Write(), mode); }
-void SetMode::operator()(const ASharedRwLock<SFile>& var, mode_t mode) { SetMode{}(var->Write(), mode); }
-void SetMode::operator()(const ASharedRwLock<SLink>& var, mode_t mode) { SetMode{}(var->Write(), mode); }
-void SetMode::operator()(const rwl::TRwLockWriteGuard<SDirectory>& var, mode_t mode) { UpdateMode(var->m_uMode, mode, var); }
-void SetMode::operator()(const rwl::TRwLockWriteGuard<SFile>& var, mode_t mode) { UpdateMode(var->m_uMode, mode, var); }
-void SetMode::operator()(const rwl::TRwLockWriteGuard<SLink>& var, mode_t mode) { UpdateMode(var->m_uMode, mode, var); }
+#define INIT_FUNC(ClassName) const auto s_iInit##ClassName = ClassName::Init();
+    INIT_FUNC(AGetName)
+    INIT_FUNC(AGetMode)
+    INIT_FUNC(AGetParent)
+    INIT_FUNC(ASetName)
+    INIT_FUNC(ASetMode)
+    INIT_FUNC(ASetParent)
+#undef INIT_FUNC
 
 void SDirectory::DoNew(const rwl::TRwLockWriteGuard<SDirectory>& var) {}
 void SFile::DoNew(const rwl::TRwLockWriteGuard<SFile>& var) {}
-void SLink::DoNew(const rwl::TRwLockWriteGuard<SLink>& var, const std::filesystem::path& path) {
-    var->LinkTo = path;
-}
+void SLink::DoNew(const rwl::TRwLockWriteGuard<SLink>& var, const std::filesystem::path& path) { var->LinkTo = path; }
 
 }

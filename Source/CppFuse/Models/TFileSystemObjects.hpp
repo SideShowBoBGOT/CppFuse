@@ -15,72 +15,76 @@ struct SDirectory;
 struct SFile;
 struct SLink;
 
-using ASharedFSVariant = std::variant<
+using ASharedFileVariant = std::variant<
     ASharedRwLock<SDirectory>,
     ASharedRwLock<SFile>,
     ASharedRwLock<SLink>
 >;
 
-using AReadGuardFSVariant = std::variant<
-    rwl::TRwLockReadGuard<SDirectory>,
-    rwl::TRwLockReadGuard<SFile>,
-    rwl::TRwLockReadGuard<SLink>
->;
+struct SInfo;
 
-using AWriteGuardFSVariant = std::variant<
-    rwl::TRwLockWriteGuard<SDirectory>,
-    rwl::TRwLockWriteGuard<SFile>,
-    rwl::TRwLockWriteGuard<SLink>
->;
+template<typename FieldType>
+class TGetParameter {
+    public:
+    const FieldType& operator()(const ASharedRwLock<SDirectory>& var) { TGetParameter{}(var->Read()); };
+    const FieldType& operator()(const ASharedRwLock<SFile>& var) { TGetParameter{}(var->Read()); };
+    const FieldType& operator()(const ASharedRwLock<SLink>& var) { TGetParameter{}(var->Read()); };
+    const FieldType& operator()(const rwl::TRwLockReadGuard<SDirectory>& var) { return ((*var).*s_pFieldPtr); }
+    const FieldType& operator()(const rwl::TRwLockReadGuard<SFile>& var) { return ((*var).*s_pFieldPtr); }
+    const FieldType& operator()(const rwl::TRwLockReadGuard<SLink>& var) { return ((*var).*s_pFieldPtr); }
+    FieldType& operator()(const rwl::TRwLockWriteGuard<SDirectory>& var) { return ((*var).*s_pFieldPtr); }
+    FieldType& operator()(const rwl::TRwLockWriteGuard<SFile>& var) { return ((*var).*s_pFieldPtr); }
+    FieldType& operator()(const rwl::TRwLockWriteGuard<SLink>& var) { return ((*var).*s_pFieldPtr); }
 
-struct SetParent {
-    void operator()(const ASharedRwLock<SDirectory>& var, const ASharedRwLock<SDirectory>& parent);
-    void operator()(const ASharedRwLock<SFile>& var, const ASharedRwLock<SDirectory>& parent);
-    void operator()(const ASharedRwLock<SLink>& var, const ASharedRwLock<SDirectory>& parent);
-    void operator()(const rwl::TRwLockWriteGuard<SDirectory>& var, const ASharedRwLock<SDirectory>& parent);
-    void operator()(const rwl::TRwLockWriteGuard<SFile>& var, const ASharedRwLock<SDirectory>& parent);
-    void operator()(const rwl::TRwLockWriteGuard<SLink>& var, const ASharedRwLock<SDirectory>& parent);
+    public:
+    static int Init() { return 0; };
+
+    protected:
+    static FieldType SInfo::* s_pFieldPtr;
 };
 
-struct SetName {
-    void operator()(const ASharedRwLock<SDirectory>& var, const std::string& name);
-    void operator()(const ASharedRwLock<SFile>& var, const std::string& name);
-    void operator()(const ASharedRwLock<SLink>& var, const std::string& name);
-    void operator()(const rwl::TRwLockWriteGuard<SDirectory>& var, const std::string& name);
-    void operator()(const rwl::TRwLockWriteGuard<SFile>& var, const std::string& name);
-    void operator()(const rwl::TRwLockWriteGuard<SLink>& var, const std::string& name);
+using AGetName = TGetParameter<std::string>;
+using AGetMode = TGetParameter<mode_t>;
+using AGetParent = TGetParameter<AWeakRwLock<SDirectory>>;
+
+template<typename FieldType, typename ParamType>
+class TSetParameter {
+    public:
+    void operator()(const ASharedRwLock<SDirectory>& var, const ParamType& param) { TSetParameter{}(var->Write(), param); };
+    void operator()(const ASharedRwLock<SFile>& var, const ParamType& param) { TSetParameter{}(var->Write(), param); };
+    void operator()(const ASharedRwLock<SLink>& var, const ParamType& param) { TSetParameter{}(var->Write(), param); };
+    void operator()(const rwl::TRwLockWriteGuard<SDirectory>& var, const ParamType& param) { Update(((*var).*s_pFieldPtr), param, var); }
+    void operator()(const rwl::TRwLockWriteGuard<SFile>& var, const ParamType& param) { Update(((*var).*s_pFieldPtr), param, var); }
+    void operator()(const rwl::TRwLockWriteGuard<SLink>& var, const ParamType& param) { Update(((*var).*s_pFieldPtr), param, var); }
+
+    public:
+    static int Init() { return 0; };
+
+    protected:
+    template<typename T>
+    static void Update(FieldType& field, const ParamType& param, const rwl::TRwLockWriteGuard<T>& var) { field = param; };
+
+    protected:
+    static FieldType SInfo::* s_pFieldPtr;
 };
 
-struct SetMode {
-    void operator()(const ASharedRwLock<SDirectory>& var, mode_t mode);
-    void operator()(const ASharedRwLock<SFile>& var, mode_t mode);
-    void operator()(const ASharedRwLock<SLink>& var, mode_t mode);
-    void operator()(const rwl::TRwLockWriteGuard<SDirectory>& var, mode_t mode);
-    void operator()(const rwl::TRwLockWriteGuard<SFile>& var, mode_t mode);
-    void operator()(const rwl::TRwLockWriteGuard<SLink>& var, mode_t mode);
-};
-
-struct GetType {
-    NFileType operator()(const ASharedRwLock<SDirectory>& var);
-    NFileType operator()(const ASharedRwLock<SFile>& var);
-    NFileType operator()(const ASharedRwLock<SLink>& var);
-    NFileType operator()(const rwl::TRwLockReadGuard<SDirectory>& var);
-    NFileType operator()(const rwl::TRwLockReadGuard<SFile>& var);
-    NFileType operator()(const rwl::TRwLockReadGuard<SLink>& var);
-    NFileType operator()(const rwl::TRwLockWriteGuard<SDirectory>& var);
-    NFileType operator()(const rwl::TRwLockWriteGuard<SFile>& var);
-    NFileType operator()(const rwl::TRwLockWriteGuard<SLink>& var);
-};
-
+template<>
 template<typename T>
-struct SInfo {
-    friend struct SetParent;
-    friend struct SetName;
-    friend struct SetMode;
-    friend struct GetType;
+void TSetParameter<mode_t, mode_t>::Update(mode_t& field, const mode_t& param, const rwl::TRwLockWriteGuard<T>& var) {
+    field = param | AGetMode{}(var);
+}
 
-    template<typename... Args>
-    static ASharedRwLock<T> New(const std::string& name, mode_t mode, const ASharedRwLock<SDirectory>& parent, Args&&... args);
+using ASetParent = TSetParameter<AWeakRwLock<SDirectory>, ASharedRwLock<SDirectory>>;
+using ASetName = TSetParameter<std::string, std::string>;
+using ASetMode = TSetParameter<mode_t, mode_t>;
+
+struct SInfo {
+    friend AGetName;
+    friend AGetMode;
+    friend AGetParent;
+    friend ASetName;
+    friend ASetMode;
+    friend ASetParent;
 
     protected:
     std::string m_sName;
@@ -88,24 +92,32 @@ struct SInfo {
     AWeakRwLock<SDirectory> m_pParent;
 };
 
-struct SDirectory : SInfo<SDirectory> {
-    friend struct SInfo<SDirectory>;
-    std::vector<ASharedFSVariant> Objects;
+template<typename T>
+struct SInfoMixin : SInfo {
+    friend struct SInfo;
+
+    template<typename... Args>
+    static ASharedRwLock<T> New(const std::string& name, mode_t mode, const ASharedRwLock<SDirectory>& parent, Args&&... args);
+};
+
+struct SDirectory : SInfoMixin<SDirectory> {
+    friend struct SInfoMixin<SDirectory>;
+    std::vector<ASharedFileVariant> Objects;
 
     protected:
     static void DoNew(const rwl::TRwLockWriteGuard<SDirectory>& var);
 };
 
-struct SFile : SInfo<SFile> {
-    friend struct SInfo<SFile>;
+struct SFile : SInfoMixin<SFile> {
+    friend struct SInfoMixin<SFile>;
     std::vector<char> Data;
 
     protected:
     static void DoNew(const rwl::TRwLockWriteGuard<SFile>& var);
 };
 
-struct SLink : SInfo<SLink> {
-    friend struct SInfo<SLink>;
+struct SLink : SInfoMixin<SLink> {
+    friend struct SInfoMixin<SLink>;
     std::filesystem::path LinkTo;
 
     protected:
@@ -114,13 +126,14 @@ struct SLink : SInfo<SLink> {
 
 template<typename T>
 template<typename... Args>
-ASharedRwLock<T> SInfo<T>::New(const std::string& name, mode_t mode, const ASharedRwLock<SDirectory>& parent, Args&&... args) {
+ASharedRwLock<T> SInfoMixin<T>::New(const std::string& name, mode_t mode, const ASharedRwLock<SDirectory>& parent, Args&&... args) {
     const auto obj = MakeSharedRwLock<SDirectory>();
     const auto objWrite = obj->Write();
-    SetName{}(objWrite, name);
-    SetMode{}(objWrite, mode);
+    ASetName{}(objWrite, name);
+    ASetMode{}(objWrite, mode);
     T::DoNew(objWrite, std::forward<Args>(args)...);
-    SetParent{}(objWrite, parent);
+    ASetParent{}(objWrite, parent);
+    return obj;
 }
 
 }

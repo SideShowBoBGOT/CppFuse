@@ -8,8 +8,6 @@ namespace cppfuse {
 
 static constexpr std::string_view s_sRootPath = "/";
 
-//const ASharedRwLock<TDirectory> TFileSystem::s_pRootDir = MakeSharedRwLock<TDirectory>(s_sRootPath.data(), static_cast<mode_t>(0), nullptr);
-
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
 //    const auto result = TFinder::Find(path);
 //    if(!result) return result.error().Type();
@@ -111,8 +109,8 @@ int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler,
     return 0;
 }
 
-//const ASharedRwLock<TDirectory>& TFileSystem::RootDir() {
-//    return s_pRootDir;
-//}
+ASharedRwLock<SDirectory> TFileSystem::s_pRootDir = SDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0), nullptr);
+
+const ASharedRwLock<SDirectory>& TFileSystem::RootDir() { return s_pRootDir; }
 
 }
