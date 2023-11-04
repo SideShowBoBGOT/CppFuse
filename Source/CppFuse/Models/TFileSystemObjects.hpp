@@ -26,6 +26,7 @@ struct SInfo;
 template<typename FieldType>
 class TGetParameter {
     public:
+    const FieldType& operator()(const ASharedFileVariant& var) { return std::visit(TGetParameter{}, var); };
     const FieldType& operator()(const ASharedRwLock<SDirectory>& var) { TGetParameter{}(var->Read()); };
     const FieldType& operator()(const ASharedRwLock<SFile>& var) { TGetParameter{}(var->Read()); };
     const FieldType& operator()(const ASharedRwLock<SLink>& var) { TGetParameter{}(var->Read()); };
@@ -50,6 +51,7 @@ using AGetParent = TGetParameter<AWeakRwLock<SDirectory>>;
 template<typename FieldType, typename ParamType>
 class TSetParameter {
     public:
+    void operator()(const ASharedFileVariant& var, const ParamType& param) { std::visit([&param](const auto& var) { TSetParameter{}(var, param); }, var); };
     void operator()(const ASharedRwLock<SDirectory>& var, const ParamType& param) { TSetParameter{}(var->Write(), param); };
     void operator()(const ASharedRwLock<SFile>& var, const ParamType& param) { TSetParameter{}(var->Write(), param); };
     void operator()(const ASharedRwLock<SLink>& var, const ParamType& param) { TSetParameter{}(var->Write(), param); };
@@ -127,7 +129,7 @@ struct SLink : SInfoMixin<SLink> {
 template<typename T>
 template<typename... Args>
 ASharedRwLock<T> SInfoMixin<T>::New(const std::string& name, mode_t mode, const ASharedRwLock<SDirectory>& parent, Args&&... args) {
-    const auto obj = MakeSharedRwLock<SDirectory>();
+    const auto obj = MakeSharedRwLock<T>();
     const auto objWrite = obj->Write();
     ASetName{}(objWrite, name);
     ASetMode{}(objWrite, mode);
