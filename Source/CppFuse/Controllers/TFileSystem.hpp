@@ -27,6 +27,7 @@ class TFileSystem {
     static int ReadDir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags);
 
     public:
+    static void Init();
     static const ASharedRwLock<SDirectory>& RootDir();
 
     protected:

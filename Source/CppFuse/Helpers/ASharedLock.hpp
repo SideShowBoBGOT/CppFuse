@@ -2,7 +2,6 @@
 #define CPPFUSE_ASHAREDLOCK_HPP
 
 #include <RwLock/TRwLock.hpp>
-#include <variant>
 
 namespace cppfuse {
 

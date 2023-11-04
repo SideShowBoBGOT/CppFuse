@@ -2,7 +2,7 @@
 #define CPPFUSE_TFINDER_HPP
 
 #include <CppFuse/Errors/TFSException.hpp>
-#include <CppFuse/Models/TFileSystemObjects.hpp>
+#include <CppFuse/Models/ASharedFileVariant.hpp>
 
 namespace cppfuse {
 

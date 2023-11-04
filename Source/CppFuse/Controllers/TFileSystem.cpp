@@ -1,8 +1,9 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
-#include <CppFuse/Models/TFileSystemObjects.hpp>
 #include <CppFuse/Controllers/TFinder.hpp>
 #include <CppFuse/Helpers/SOverloadVariant.hpp>
-
+#include <CppFuse/Models/SDirectory.hpp>
+#include <CppFuse/Models/SLink.hpp>
+#include <CppFuse/Models/SFile.hpp>
 #include <cstring>
 
 namespace cppfuse {
@@ -131,7 +132,7 @@ int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler,
     return 0;
 }
 
-ASharedRwLock<SDirectory> TFileSystem::s_pRootDir = SDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0), nullptr);
+ASharedRwLock<SDirectory> TFileSystem::s_pRootDir = nullptr;
 
 const ASharedRwLock<SDirectory>& TFileSystem::RootDir() { return s_pRootDir; }
 
@@ -145,6 +146,20 @@ void TFileSystem::FillerDirectory(const ASharedRwLock<SDirectory>& dir, void* bu
         const auto name = std::visit(AGetName{}, var);
         FillerBuffer(name, buffer, filler);
     }
+}
+
+void TFileSystem::Init() {
+    ASetName::Init();
+    ASetMode::Init();
+    ASetParent::Init();
+    ASetUid::Init();
+    ASetGid::Init();
+    AGetName::Init();
+    AGetMode::Init();
+    AGetParent::Init();
+    AGetUid::Init();
+    AGetGid::Init();
+    s_pRootDir = SDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
 }
 
 }

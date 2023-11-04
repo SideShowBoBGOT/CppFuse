@@ -1,5 +1,8 @@
 #include <CppFuse/Controllers/TFinder.hpp>
 #include <CppFuse/Controllers/TFileSystem.hpp>
+#include <CppFuse/Models/SDirectory.hpp>
+#include <CppFuse/Models/SLink.hpp>
+#include <CppFuse/Models/SFile.hpp>
 #include <algorithm>
 #include <array>
 

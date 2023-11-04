@@ -15,6 +15,6 @@ fuse_operations FileSystemOperations = {
 };
 
 int main(int argc, char *argv[]) {
-    //cppfuse::TFileSystem::Init();
+    cppfuse::TFileSystem::Init();
     return fuse_main(argc, argv, &FileSystemOperations, nullptr);
 }
