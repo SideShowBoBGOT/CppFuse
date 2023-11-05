@@ -4,7 +4,7 @@
 #include "CppFuse/Models/Objects/SDirectory.hpp"
 #include "CppFuse/Models/Objects/SLink.hpp"
 #include "CppFuse/Models/Objects/SFile.hpp"
-#include "CppFuse/Models/Operations/TGetAttributes.hpp"
+#include "CppFuse/Models/Operations/SGetAttributes.hpp"
 #include <cstring>
 
 namespace cppfuse {
@@ -14,26 +14,7 @@ static constexpr std::string_view s_sRootPath = "/";
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
     const auto result = TFinder::Find(path);
     if(!result) return result.error().Type();
-    TGetAttributes{st}(result.value());
-
-    std::visit(SOverloadVariant{
-        [st](const ASharedRwLock<SDirectory>& dir) {
-            const auto dirRead = dir->Read();
-            st->st_mode = AGetMode{}(dirRead);
-            st->st_nlink = static_cast<nlink_t>(dirRead->Objects.size());
-        },
-        [st](const ASharedRwLock<SFile>& file) {
-            const auto fileRead = file->Read();
-            st->st_nlink = 1;
-            st->st_size = static_cast<off_t>(fileRead->Data.size());
-        },
-        [st](const ASharedRwLock<SLink>& link) {
-            const auto linkRead = link->Read();
-            st->st_nlink = 1;
-            st->st_size = static_cast<off_t>(std::string_view(linkRead->LinkTo.c_str()).size());
-        }
-    }, result.value());
-
+    SGetAttributes{st}(result.value());
     return 0;
 }
 
@@ -152,16 +133,11 @@ void TFileSystem::FillerDirectory(const ASharedRwLock<SDirectory>& dir, void* bu
 }
 
 void TFileSystem::Init() {
-    ASetName::Init();
-    ASetMode::Init();
-    ASetParent::Init();
-    ASetUid::Init();
-    ASetGid::Init();
-    AGetName::Init();
-    AGetMode::Init();
-    AGetParent::Init();
-    AGetUid::Init();
-    AGetGid::Init();
+    SCommonParameterName::Init();
+    SCommonParameterMode::Init();
+    SCommonParameterParent::Init();
+    SCommonParameterUid::Init();
+    SCommonParameterGid::Init();
     s_pRootDir = SDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
 }
 

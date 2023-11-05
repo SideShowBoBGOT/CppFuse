@@ -11,7 +11,7 @@ add_executable(${PROJECT_NAME} main.cpp
         Source/CppFuse/Models/Objects/SDirectory.cpp
         Source/CppFuse/Models/Objects/SFile.cpp
         Source/CppFuse/Models/Objects/SLink.cpp
-        Source/CppFuse/Models/Operations/TGetAttributes.cpp
+        Source/CppFuse/Models/Operations/SGetAttributes.cpp
         Source/CppFuse/Models/Operations/SCommonParameter.cpp)
 
 add_subdirectory(external)
