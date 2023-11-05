@@ -1,7 +1,7 @@
 #ifndef CPPFUSE_SFILE_HPP
 #define CPPFUSE_SFILE_HPP
 
-#include <CppFuse/Models/SInfoMixin.hpp>
+#include <CppFuse/Models/Objects/SInfoMixin.hpp>
 #include <vector>
 
 namespace cppfuse {

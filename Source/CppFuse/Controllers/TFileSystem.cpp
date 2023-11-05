@@ -1,9 +1,10 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
 #include <CppFuse/Controllers/TFinder.hpp>
 #include <CppFuse/Helpers/SOverloadVariant.hpp>
-#include <CppFuse/Models/SDirectory.hpp>
-#include <CppFuse/Models/SLink.hpp>
-#include <CppFuse/Models/SFile.hpp>
+#include "CppFuse/Models/Objects/SDirectory.hpp"
+#include "CppFuse/Models/Objects/SLink.hpp"
+#include "CppFuse/Models/Objects/SFile.hpp"
+#include "CppFuse/Models/Operations/TGetAttributes.hpp"
 #include <cstring>
 
 namespace cppfuse {
@@ -13,6 +14,8 @@ static constexpr std::string_view s_sRootPath = "/";
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
     const auto result = TFinder::Find(path);
     if(!result) return result.error().Type();
+    TGetAttributes{st}(result.value());
+
     std::visit(SOverloadVariant{
         [st](const ASharedRwLock<SDirectory>& dir) {
             const auto dirRead = dir->Read();
@@ -104,7 +107,7 @@ int TFileSystem::SymLink(const char* target_path, const char* link_path) {
 int TFileSystem::ChMod(const char* path, mode_t mode, struct fuse_file_info* fi) {
     const auto var = TFinder::Find(path);
     if(!var) return var.error().Type();
-    ASetMode{}(var.value(), mode);
+    ASetMode{mode}(var.value());
     return 0;
 }
 

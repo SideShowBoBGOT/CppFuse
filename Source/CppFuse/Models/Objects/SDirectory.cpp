@@ -1,4 +1,4 @@
-#include <CppFuse/Models/SDirectory.hpp>
+#include <CppFuse/Models/Objects/SDirectory.hpp>
 
 namespace cppfuse {
 

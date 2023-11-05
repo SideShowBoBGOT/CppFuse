@@ -1,23 +1,17 @@
 #ifndef CPPFUSE_SINFO_HPP
 #define CPPFUSE_SINFO_HPP
 
-#include <CppFuse/Models/TGetParameter.hpp>
-#include <CppFuse/Models/TSetParameter.hpp>
+#include <CppFuse/Models/Operations/SCommonParameter.hpp>
 
 namespace cppfuse {
 
 // https://www.gnu.org/software/libc/manual/html_node/Attribute-Meanings.html
 struct SInfo {
-    friend AGetName;
-    friend AGetMode;
-    friend AGetParent;
-    friend AGetUid;
-    friend AGetGid;
-    friend ASetName;
-    friend ASetMode;
-    friend ASetParent;
-    friend ASetUid;
-    friend ASetGid;
+    friend struct SCommonParameterName;
+    friend struct SCommonParameterParent;
+    friend struct SCommonParameterMode;
+    friend struct SCommonParameterUid;
+    friend struct SCommonParameterGid;
 
     protected:
     std::string m_sName;

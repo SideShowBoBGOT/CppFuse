@@ -1,7 +1,7 @@
 #ifndef CPPFUSE_SDIRECTORY_HPP
 #define CPPFUSE_SDIRECTORY_HPP
 
-#include <CppFuse/Models/SInfoMixin.hpp>
+#include <CppFuse/Models/Objects/SInfoMixin.hpp>
 #include <vector>
 
 namespace cppfuse {

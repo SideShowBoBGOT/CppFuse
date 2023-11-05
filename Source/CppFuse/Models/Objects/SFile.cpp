@@ -1,4 +1,4 @@
-#include <CppFuse/Models/SFile.hpp>
+#include <CppFuse/Models/Objects/SFile.hpp>
 
 namespace cppfuse {
 

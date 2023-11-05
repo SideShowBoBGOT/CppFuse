@@ -1,4 +1,4 @@
-#include <CppFuse/Models/SLink.hpp>
+#include <CppFuse/Models/Objects/SLink.hpp>
 
 namespace cppfuse {
 

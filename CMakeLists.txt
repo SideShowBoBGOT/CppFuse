@@ -8,11 +8,11 @@ add_executable(${PROJECT_NAME} main.cpp
         Source/CppFuse/Controllers/TFileSystem.cpp
         Source/CppFuse/Errors/TFSException.cpp
         Source/CppFuse/Controllers/TFinder.cpp
-        Source/CppFuse/Models/TSetParameter.cpp
-        Source/CppFuse/Models/TGetParameter.cpp
-        Source/CppFuse/Models/SDirectory.cpp
-        Source/CppFuse/Models/SFile.cpp
-        Source/CppFuse/Models/SLink.cpp)
+        Source/CppFuse/Models/Objects/SDirectory.cpp
+        Source/CppFuse/Models/Objects/SFile.cpp
+        Source/CppFuse/Models/Objects/SLink.cpp
+        Source/CppFuse/Models/Operations/TGetAttributes.cpp
+        Source/CppFuse/Models/Operations/SCommonParameter.cpp)
 
 add_subdirectory(external)
 target_include_directories(${PROJECT_NAME} PRIVATE Source)

@@ -1,7 +1,7 @@
 #ifndef CPPFUSE_SLINK_HPP
 #define CPPFUSE_SLINK_HPP
 
-#include <CppFuse/Models/SInfoMixin.hpp>
+#include <CppFuse/Models/Objects/SInfoMixin.hpp>
 #include <filesystem>
 
 namespace cppfuse {
