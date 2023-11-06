@@ -3,15 +3,29 @@
 
 namespace cppfuse {
 
-#define DEFINE_CLASS(FieldName) void TGetInfo##FieldName::Init() { s_Field = &SInfo::m_##FieldName; }
-    DEFINE_CLASS(Name)
-    DEFINE_CLASS(Mode)
-    DEFINE_CLASS(Parent)
-    DEFINE_CLASS(Uid)
-    DEFINE_CLASS(Gid)
-    DEFINE_CLASS(ATime)
-    DEFINE_CLASS(MTime)
-    DEFINE_CLASS(CTime)
-#undef DEFINE_CLASS
+const std::string& TGetInfoName::operator()(const ASharedFileVariant& var) { return std::visit(*this, var); }
+const std::string& TGetInfoName::operator()(const CSharedRwFileObject auto& var) { return operator()(var->Read()); }
+const std::string& TGetInfoName::operator()(const CReadGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Name; }
+std::string& TGetInfoName::operator()(const CWriteGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Name; }
+
+const uid_t& TGetInfoUid::operator()(const ASharedFileVariant& var) { return std::visit(*this, var); }
+const uid_t& TGetInfoUid::operator()(const CSharedRwFileObject auto& var) { return operator()(var->Read()); }
+const uid_t& TGetInfoUid::operator()(const CReadGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Uid; }
+uid_t& TGetInfoUid::operator()(const CWriteGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Uid; }
+
+const gid_t& TGetInfoGid::operator()(const ASharedFileVariant& var) { return std::visit(*this, var); }
+const gid_t& TGetInfoGid::operator()(const CSharedRwFileObject auto& var) { return operator()(var->Read()); }
+const gid_t& TGetInfoGid::operator()(const CReadGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Gid; }
+gid_t& TGetInfoGid::operator()(const CWriteGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Gid; }
+
+const mode_t& TGetInfoMode::operator()(const ASharedFileVariant& var) { return std::visit(*this, var); }
+const mode_t& TGetInfoMode::operator()(const CSharedRwFileObject auto& var) { return operator()(var->Read()); }
+const mode_t& TGetInfoMode::operator()(const CReadGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Mode; }
+mode_t& TGetInfoMode::operator()(const CWriteGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Mode; }
+
+const AWeakRwLock<SDirectory>& TGetInfoParent::operator()(const ASharedFileVariant& var) { return std::visit(*this, var); }
+const AWeakRwLock<SDirectory>& TGetInfoParent::operator()(const CSharedRwFileObject auto& var) { return operator()(var->Read()); }
+const AWeakRwLock<SDirectory>& TGetInfoParent::operator()(const CReadGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Parent; }
+AWeakRwLock<SDirectory>& TGetInfoParent::operator()(const CWriteGuardFileObject auto& var) { return ((SInfo*)var.Get())->m_Parent; }
 
 }

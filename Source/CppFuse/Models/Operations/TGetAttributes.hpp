@@ -1,7 +1,7 @@
 #ifndef CPPFUSE_TGETATTRIBUTES_HPP
 #define CPPFUSE_TGETATTRIBUTES_HPP
 
-#include <CppFuse/Models/Objects/ASharedFileVariant.hpp>
+#include "CppFuse/Models/Aliases/ASharedFileVariant.hpp"
 #include <sys/stat.h>
 
 namespace cppfuse {

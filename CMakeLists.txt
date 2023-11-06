@@ -13,8 +13,7 @@ add_executable(${PROJECT_NAME} main.cpp
         Source/CppFuse/Models/Objects/SLink.cpp
         Source/CppFuse/Models/Operations/TGetAttributes.cpp
         Source/CppFuse/Models/Operations/TSetInfoParameter.cpp
-        Source/CppFuse/Models/Operations/TGetInfoParameter.cpp
-        Source/CppFuse/Models/Operations/TGetInfoType.cpp)
+        Source/CppFuse/Models/Operations/TGetInfoParameter.cpp)
 
 add_subdirectory(external)
 target_include_directories(${PROJECT_NAME} PRIVATE Source)

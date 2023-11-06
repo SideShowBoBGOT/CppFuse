@@ -1,7 +1,7 @@
 #ifndef CPPFUSE_ASHAREDFILEVARIANT_HPP
 #define CPPFUSE_ASHAREDFILEVARIANT_HPP
 
-#include <CppFuse/Helpers/ASharedLock.hpp>
+#include "CppFuse/Helpers/ASharedLock.hpp"
 #include <variant>
 
 namespace cppfuse {

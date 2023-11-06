@@ -13,17 +13,11 @@ struct SInfo {
     friend class TGetInfoMode;
     friend class TGetInfoGid; 
     friend class TGetInfoUid;
-    friend class TGetInfoATime;
-    friend class TGetInfoMTime;
-    friend class TGetInfoCTime;
     friend class TSetInfoParent;
     friend class TSetInfoName;
     friend class TSetInfoMode;
     friend class TSetInfoGid;
     friend class TSetInfoUid;
-    friend class TSetInfoATime;
-    friend class TSetInfoMTime;
-    friend class TSetInfoCTime;
 
     protected:
     std::string m_Name;
@@ -37,14 +31,10 @@ struct SInfo {
 
     // off_t st_size is the size of file a.k.a Data.size(), and is the length of soft link a.k.a std::string_view(LinkTo.data()).size();
 
-    // It was decided to have time attributes, but not to update them, because it will cause a lot of synchronization issues.
+    // It was decided not to have time attributes, because it will cause a lot of synchronization issues.
     // Take "rename" operation, for example( https://www.gnu.org/software/libc/manual/html_node/File-Times.html ):
     //      " Renaming a file with rename affects only the attribute change time and modification time fields of the
     //      two parent directories involved, and not the times for the file being renamed. "
-
-    time_t m_ATime = 0; // Last access time to the file;
-    time_t m_MTime = 0; // Last modification of contents of the file;
-    time_t m_CTime = 0; // Last modification of attributes to the file;
     AWeakRwLock<SDirectory> m_Parent;
 };
 

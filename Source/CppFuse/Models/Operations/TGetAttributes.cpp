@@ -27,9 +27,6 @@ void TGetAttributes::UpdateGeneralAttr(const auto& varRead) {
     m_pSt->st_mode = TGetInfoMode{}(varRead);
     m_pSt->st_gid = TGetInfoGid{}(varRead);
     m_pSt->st_uid = TGetInfoUid{}(varRead);
-    m_pSt->st_atime = TGetInfoATime{}(varRead);
-    m_pSt->st_mtime = TGetInfoMTime{}(varRead);
-    m_pSt->st_ctime = TGetInfoCTime{}(varRead);
 }
 
 void TGetAttributes::UpdateSize(const rwl::TRwLockReadGuard<SDirectory>& varRead) {

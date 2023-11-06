@@ -115,7 +115,7 @@ int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler,
     return 0;
 }
 
-ASharedRwLock<SDirectory> TFileSystem::s_pRootDir = nullptr;
+ASharedRwLock<SDirectory> TFileSystem::s_pRootDir = SDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
 
 const ASharedRwLock<SDirectory>& TFileSystem::RootDir() { return s_pRootDir; }
 
@@ -129,26 +129,6 @@ void TFileSystem::FillerDirectory(const ASharedRwLock<SDirectory>& dir, void* bu
         const auto name = std::visit(TGetInfoName{}, var);
         FillerBuffer(name, buffer, filler);
     }
-}
-
-void TFileSystem::Init() {
-    TGetInfoParent::Init();
-    TGetInfoName::Init();
-    TGetInfoMode::Init();
-    TGetInfoGid::Init();
-    TGetInfoUid::Init();
-    TGetInfoATime::Init();
-    TGetInfoMTime::Init();
-    TGetInfoCTime::Init();
-    TSetInfoParent::Init();
-    TSetInfoName::Init();
-    TSetInfoMode::Init();
-    TSetInfoGid::Init();
-    TSetInfoUid::Init();
-    TSetInfoATime::Init();
-    TSetInfoMTime::Init();
-    TSetInfoCTime::Init();
-    s_pRootDir = SDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
 }
 
 }
