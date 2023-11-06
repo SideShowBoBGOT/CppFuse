@@ -8,7 +8,7 @@ namespace cppfuse {
 
 struct SInfo;
 
-template<typename FieldType>
+template<typename FieldType, typename Derived>
 class TGetInfoParameter {
     public:
     const FieldType& operator()(const ASharedFileVariant& var) { return std::visit(*this, var); };
@@ -26,11 +26,11 @@ class TGetInfoParameter {
     static FieldType SInfo::* s_Field;
 };
 
-template<typename FieldType>
-FieldType SInfo::* TGetInfoParameter<FieldType>::s_Field = nullptr;
+template<typename FieldType, typename Derived>
+FieldType SInfo::* TGetInfoParameter<FieldType, Derived>::s_Field = nullptr;
 
 #define DECLARE_CLASS(FieldType, FieldName)\
-    class TGetInfo##FieldName : public TGetInfoParameter<FieldType> {\
+    class TGetInfo##FieldName : public TGetInfoParameter<FieldType, TGetInfo##FieldName> {\
         public:\
         static void Init();\
     };
@@ -40,6 +40,9 @@ FieldType SInfo::* TGetInfoParameter<FieldType>::s_Field = nullptr;
     DECLARE_CLASS(AWeakRwLock<SDirectory>, Parent)
     DECLARE_CLASS(uid_t, Uid)
     DECLARE_CLASS(gid_t, Gid)
+    DECLARE_CLASS(time_t, ATime)
+    DECLARE_CLASS(time_t, MTime)
+    DECLARE_CLASS(time_t, CTime)
 #undef DECLARE_CLASS
 
 

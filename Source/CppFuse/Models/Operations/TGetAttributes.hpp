@@ -26,6 +26,11 @@ class TGetAttributes {
     void UpdateSize(const rwl::TRwLockReadGuard<SLink>& varRead);
 
     protected:
+    void UpdateNLink(const rwl::TRwLockReadGuard<SDirectory>& varRead);
+    void UpdateNLink(const rwl::TRwLockReadGuard<SFile>& varRead);
+    void UpdateNLink(const rwl::TRwLockReadGuard<SLink>& varRead);
+
+    protected:
     struct stat* m_pSt = nullptr;
 };
 

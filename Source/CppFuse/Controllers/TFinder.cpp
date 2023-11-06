@@ -6,12 +6,15 @@
 #include <algorithm>
 #include <array>
 
+//#include <iostream>
+
 namespace cppfuse {
 
 static constexpr std::string_view s_sSelfName = ".";
 static constexpr std::string_view s_sParentName = "..";
 
 AFSExpected<ASharedFileVariant> TFinder::Find(const AStdPath& path) {
+    //std::cout << "fsdfdsfsd" << std::endl;
     return RecursiveFindStepOne(path, path.begin(), TFileSystem::RootDir());
 }
 

@@ -1,5 +1,6 @@
 #include <CppFuse/Models/Operations/TGetAttributes.hpp>
 #include <CppFuse/Models/Operations/TGetInfoParameter.hpp>
+#include <CppFuse/Models/Objects/SDirectory.hpp>
 #include <CppFuse/Models/Objects/SFile.hpp>
 #include <CppFuse/Models/Objects/SLink.hpp>
 
@@ -19,16 +20,21 @@ void TGetAttributes::UpdateAttr(const auto& var) {
     const auto varRead = var->Read();
     UpdateGeneralAttr(varRead);
     UpdateSize(varRead);
-    m_pSt->st_nlink = static_cast<nlink_t>(var.use_count());
+    UpdateNLink(varRead);
 }
 
 void TGetAttributes::UpdateGeneralAttr(const auto& varRead) {
     m_pSt->st_mode = TGetInfoMode{}(varRead);
     m_pSt->st_gid = TGetInfoGid{}(varRead);
     m_pSt->st_uid = TGetInfoUid{}(varRead);
+    m_pSt->st_atime = TGetInfoATime{}(varRead);
+    m_pSt->st_mtime = TGetInfoMTime{}(varRead);
+    m_pSt->st_ctime = TGetInfoCTime{}(varRead);
 }
 
-void TGetAttributes::UpdateSize(const rwl::TRwLockReadGuard<SDirectory>& varRead) {}
+void TGetAttributes::UpdateSize(const rwl::TRwLockReadGuard<SDirectory>& varRead) {
+    m_pSt->st_size = 0;
+}
 
 void TGetAttributes::UpdateSize(const rwl::TRwLockReadGuard<SFile>& varRead) {
     m_pSt->st_size = static_cast<off_t>(varRead->Data.size());
@@ -36,6 +42,18 @@ void TGetAttributes::UpdateSize(const rwl::TRwLockReadGuard<SFile>& varRead) {
 
 void TGetAttributes::UpdateSize(const rwl::TRwLockReadGuard<SLink>& varRead) {
     m_pSt->st_size = static_cast<off_t>(std::string_view(varRead->LinkTo.c_str()).size());
+}
+
+void TGetAttributes::UpdateNLink(const rwl::TRwLockReadGuard<SDirectory>& varRead) {
+    m_pSt->st_nlink = varRead->Objects.size();
+}
+
+void TGetAttributes::UpdateNLink(const rwl::TRwLockReadGuard<SFile>& varRead) {
+    m_pSt->st_size = 1;
+}
+
+void TGetAttributes::UpdateNLink(const rwl::TRwLockReadGuard<SLink>& varRead) {
+    m_pSt->st_size = 1;
 }
 
 }

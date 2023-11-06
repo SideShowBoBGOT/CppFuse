@@ -20,6 +20,10 @@ struct SInfoMixin : SInfo {
         TSetInfoMode{mode}(objWrite);
         TSetInfoUid{getuid()}(objWrite);
         TSetInfoGid{getgid()}(objWrite);
+        const auto t = time(nullptr);
+        TSetInfoATime{t}(objWrite);
+        TSetInfoMTime{t}(objWrite);
+        TSetInfoCTime{t}(objWrite);
         T::DoNew(objWrite, std::forward<Args>(args)...);
         TSetInfoParent{parent}(objWrite);
         return obj;

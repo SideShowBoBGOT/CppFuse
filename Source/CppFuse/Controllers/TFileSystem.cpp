@@ -1,10 +1,9 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
 #include <CppFuse/Controllers/TFinder.hpp>
-#include <CppFuse/Helpers/SOverloadVariant.hpp>
-#include "CppFuse/Models/Objects/SDirectory.hpp"
-#include "CppFuse/Models/Objects/SLink.hpp"
-#include "CppFuse/Models/Objects/SFile.hpp"
-#include "CppFuse/Models/Operations/TGetAttributes.hpp"
+#include <CppFuse/Models/Objects/SDirectory.hpp>
+#include <CppFuse/Models/Objects/SLink.hpp>
+#include <CppFuse/Models/Objects/SFile.hpp>
+#include <CppFuse/Models/Operations/TGetAttributes.hpp>
 #include <cstring>
 
 namespace cppfuse {
@@ -138,11 +137,17 @@ void TFileSystem::Init() {
     TGetInfoMode::Init();
     TGetInfoGid::Init();
     TGetInfoUid::Init();
+    TGetInfoATime::Init();
+    TGetInfoMTime::Init();
+    TGetInfoCTime::Init();
     TSetInfoParent::Init();
     TSetInfoName::Init();
     TSetInfoMode::Init();
     TSetInfoGid::Init();
     TSetInfoUid::Init();
+    TSetInfoATime::Init();
+    TSetInfoMTime::Init();
+    TSetInfoCTime::Init();
     s_pRootDir = SDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
 }
 

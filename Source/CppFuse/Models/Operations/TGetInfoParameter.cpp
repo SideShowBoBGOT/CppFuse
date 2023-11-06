@@ -9,6 +9,9 @@ namespace cppfuse {
     DEFINE_CLASS(Parent)
     DEFINE_CLASS(Uid)
     DEFINE_CLASS(Gid)
+    DEFINE_CLASS(ATime)
+    DEFINE_CLASS(MTime)
+    DEFINE_CLASS(CTime)
 #undef DEFINE_CLASS
 
 }
