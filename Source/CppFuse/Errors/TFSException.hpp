@@ -28,6 +28,8 @@ class TFSException : public std::exception {
     std::string m_sMessage;
 };
 
+std::unexpected<TFSException> MakeFSException(const AStdPathIt& begin, const AStdPathIt& end, NFSExceptionType type);
+
 }
 
 #endif //CPPFUSE_TFINDPATHEXCEPTION_HPP

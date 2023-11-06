@@ -4,7 +4,7 @@
 #include "CppFuse/Models/Objects/SDirectory.hpp"
 #include "CppFuse/Models/Objects/SLink.hpp"
 #include "CppFuse/Models/Objects/SFile.hpp"
-#include "CppFuse/Models/Operations/SGetAttributes.hpp"
+#include "CppFuse/Models/Operations/TGetAttributes.hpp"
 #include <cstring>
 
 namespace cppfuse {
@@ -14,7 +14,7 @@ static constexpr std::string_view s_sRootPath = "/";
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
     const auto result = TFinder::Find(path);
     if(!result) return result.error().Type();
-    SGetAttributes{st}(result.value());
+    TGetAttributes{st}(result.value());
     return 0;
 }
 
@@ -52,13 +52,13 @@ int TFileSystem::Unlink(const char* path) {
     }
     std::visit([](const auto& obj) {
         const auto objRead = obj->Read();
-        const auto parentDir = AGetParent{}(objRead).lock();
+        const auto parentDir = TGetInfoParent{}(objRead).lock();
         if(!parentDir) return;
         const auto parentDirWrite = parentDir->Write();
         auto& fileObjects = parentDirWrite->Objects;
-        const auto& objName = AGetName{}(objRead);
+        const auto& objName = TGetInfoName{}(objRead);
         fileObjects.erase(std::ranges::find_if(fileObjects, [&objName](const auto& el) {
-            return std::visit(AGetName{}, el) == objName;
+            return std::visit(TGetInfoName{}, el) == objName;
         }));
     }, obj);
 
@@ -88,7 +88,7 @@ int TFileSystem::SymLink(const char* target_path, const char* link_path) {
 int TFileSystem::ChMod(const char* path, mode_t mode, struct fuse_file_info* fi) {
     const auto var = TFinder::Find(path);
     if(!var) return var.error().Type();
-    ASetMode{mode}(var.value());
+    TSetInfoMode{mode}(var.value());
     return 0;
 }
 
@@ -127,17 +127,22 @@ void TFileSystem::FillerBuffer(const std::string_view& name, void* buffer, fuse_
 void TFileSystem::FillerDirectory(const ASharedRwLock<SDirectory>& dir, void* buffer, fuse_fill_dir_t filler) {
     const auto dirRead = dir->Read();
     for(const auto& var : dirRead->Objects) {
-        const auto name = std::visit(AGetName{}, var);
+        const auto name = std::visit(TGetInfoName{}, var);
         FillerBuffer(name, buffer, filler);
     }
 }
 
 void TFileSystem::Init() {
-    SCommonParameterName::Init();
-    SCommonParameterMode::Init();
-    SCommonParameterParent::Init();
-    SCommonParameterUid::Init();
-    SCommonParameterGid::Init();
+    TGetInfoParent::Init();
+    TGetInfoName::Init();
+    TGetInfoMode::Init();
+    TGetInfoGid::Init();
+    TGetInfoUid::Init();
+    TSetInfoParent::Init();
+    TSetInfoName::Init();
+    TSetInfoMode::Init();
+    TSetInfoGid::Init();
+    TSetInfoUid::Init();
     s_pRootDir = SDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
 }
 

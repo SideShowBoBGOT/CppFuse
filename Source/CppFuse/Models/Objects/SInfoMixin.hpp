@@ -2,8 +2,8 @@
 #define CPPFUSE_SINFOMIXIN_HPP
 
 #include <CppFuse/Models/Objects/SInfo.hpp>
-#include <CppFuse/Models/Operations/SSetParameter.hpp>
-#include <CppFuse/Models/Operations/SGetParameter.hpp>
+#include <CppFuse/Models/Operations/TSetInfoParameter.hpp>
+#include <CppFuse/Models/Operations/TGetInfoParameter.hpp>
 
 namespace cppfuse {
 
@@ -16,12 +16,12 @@ struct SInfoMixin : SInfo {
         Args&& ... args) {
         const auto obj = MakeSharedRwLock<T>();
         const auto objWrite = obj->Write();
-        ASetName{name}(objWrite);
-        ASetMode{mode}(objWrite);
-        ASetUid{getuid()}(objWrite);
-        ASetGid{getgid()}(objWrite);
+        TSetInfoName{name}(objWrite);
+        TSetInfoMode{mode}(objWrite);
+        TSetInfoUid{getuid()}(objWrite);
+        TSetInfoGid{getgid()}(objWrite);
         T::DoNew(objWrite, std::forward<Args>(args)...);
-        ASetParent{parent}(objWrite);
+        TSetInfoParent{parent}(objWrite);
         return obj;
     }
 };

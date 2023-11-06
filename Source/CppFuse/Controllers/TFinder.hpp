@@ -18,10 +18,14 @@ class TFinder {
     static AFSExpected<ASharedRwLock<T>> FindGeneral(const AStdPath& path);
 
     protected:
-    static AFSExpected<ASharedFileVariant> RecursiveFindStepOne(const AStdPath& path, const AStdPathIt& it,
-        const ASharedRwLock<SDirectory>& dir);
-    static AFSExpected<ASharedFileVariant> RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it,
-        const ASharedFileVariant& obj);
+    static AFSExpected<ASharedFileVariant>
+    RecursiveFindStepOne(const AStdPath& path, AStdPathIt it, const ASharedRwLock<SDirectory>& dir);
+
+    static AFSExpected<ASharedFileVariant>
+    RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it, const ASharedRwLock<SDirectory>& obj);
+
+    static AFSExpected<ASharedFileVariant>
+    RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it, const ASharedFileVariant & obj);
 
 };
 

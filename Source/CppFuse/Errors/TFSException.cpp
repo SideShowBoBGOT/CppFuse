@@ -12,6 +12,9 @@ cppfuse::TFSException::TFSException(AStdPathIt begin, AStdPathIt end,
 const char* TFSException::what() const noexcept { return m_sMessage.c_str(); }
 NFSExceptionType TFSException::Type() const { return m_xType; }
 
+std::unexpected<TFSException> MakeFSException(const AStdPathIt& begin, const AStdPathIt& end, NFSExceptionType type) {
+    return std::unexpected(TFSException(begin, end, type));
+}
 }
 
 

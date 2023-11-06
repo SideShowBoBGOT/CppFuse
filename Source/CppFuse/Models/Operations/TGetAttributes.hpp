@@ -1,14 +1,14 @@
-#ifndef CPPFUSE_SGETATTRIBUTES_HPP
-#define CPPFUSE_SGETATTRIBUTES_HPP
+#ifndef CPPFUSE_TGETATTRIBUTES_HPP
+#define CPPFUSE_TGETATTRIBUTES_HPP
 
 #include <CppFuse/Models/Objects/ASharedFileVariant.hpp>
 #include <sys/stat.h>
 
 namespace cppfuse {
 
-class SGetAttributes {
+class TGetAttributes {
     public:
-    explicit SGetAttributes(struct stat* st);
+    explicit TGetAttributes(struct stat* st);
 
     public:
     void operator()(const ASharedFileVariant& var);
@@ -31,4 +31,4 @@ class SGetAttributes {
 
 }
 
-#endif //CPPFUSE_SGETATTRIBUTES_HPP
+#endif //CPPFUSE_TGETATTRIBUTES_HPP
