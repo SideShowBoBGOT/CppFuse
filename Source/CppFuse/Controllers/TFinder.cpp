@@ -18,7 +18,7 @@ AFSExpected<ASharedFileVariant> TFinder::Find(const AStdPath& path) {
     return RecursiveFindStepOne(path, path.begin(), TFileSystem::RootDir());
 }
 
-AFSExpected<ASharedFileVariant> TFinder::RecursiveFindStepOne(const AStdPath& path, AStdPathIt it, const ASharedRwLock<SDirectory>& dir) {
+AFSExpected<ASharedFileVariant> TFinder::RecursiveFindStepOne(const AStdPath& path, AStdPathIt it, const ASharedRwLock<TDirectory>& dir) {
     const auto dirRead = dir->Read();
     const auto itName = std::string_view(it->c_str());
     const auto ownName = std::string_view(TGetInfoName{}(dirRead));
@@ -42,7 +42,7 @@ AFSExpected<ASharedFileVariant> TFinder::RecursiveFindStepOne(const AStdPath& pa
     return RecursiveFindStepTwo(path, it, *childIt);
 }
 
-AFSExpected<ASharedFileVariant> TFinder::RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it, const ASharedRwLock<SDirectory>& obj) {
+AFSExpected<ASharedFileVariant> TFinder::RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it, const ASharedRwLock<TDirectory>& obj) {
     if(std::distance(it, path.end()) == 1) {
         return obj;
     }
@@ -53,22 +53,22 @@ AFSExpected<ASharedFileVariant> TFinder::RecursiveFindStepTwo(const AStdPath& pa
     if(std::distance(it, path.end()) == 1) {
         return obj;
     }
-    if(const auto dir = std::get_if<ASharedRwLock<SDirectory>>(&obj)) {
+    if(const auto dir = std::get_if<ASharedRwLock<TDirectory>>(&obj)) {
         return RecursiveFindStepOne(path, ++it, *dir);
     }
     return MakeFSException(path.begin(), it, NFSExceptionType::NotDirectory);
 }
 
-AFSExpected<ASharedRwLock<SDirectory>> TFinder::FindDir(const AStdPath& path) {
-    return FindGeneral<SDirectory, NFSExceptionType::NotDirectory>(path);
+AFSExpected<ASharedRwLock<TDirectory>> TFinder::FindDir(const AStdPath& path) {
+    return FindGeneral<TDirectory, NFSExceptionType::NotDirectory>(path);
 }
 
-AFSExpected<ASharedRwLock<SLink>> TFinder::FindLink(const std::filesystem::path& path) {
-    return FindGeneral<SLink, NFSExceptionType::NotLink>(path);
+AFSExpected<ASharedRwLock<TLink>> TFinder::FindLink(const std::filesystem::path& path) {
+    return FindGeneral<TLink, NFSExceptionType::NotLink>(path);
 }
 
-AFSExpected<ASharedRwLock<SFile>> TFinder::FindFile(const std::filesystem::path& path) {
-    return FindGeneral<SFile, NFSExceptionType::NotFile>(path);
+AFSExpected<ASharedRwLock<TFile>> TFinder::FindFile(const std::filesystem::path& path) {
+    return FindGeneral<TFile, NFSExceptionType::NotFile>(path);
 }
 
 }

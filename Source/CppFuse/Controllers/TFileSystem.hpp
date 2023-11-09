@@ -10,8 +10,6 @@
 
 namespace cppfuse {
 
-struct SDirectory;
-
 class TFileSystem {
     public:
     static int GetAttr(const char *path, struct stat *st, struct fuse_file_info *fi);
@@ -27,14 +25,14 @@ class TFileSystem {
     static int ReadDir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags);
 
     public:
-    static const ASharedRwLock<SDirectory>& RootDir();
+    static const ASharedRwLock<TDirectory>& RootDir();
 
     protected:
     static void FillerBuffer(const std::string_view& name , void *buffer, fuse_fill_dir_t filler);
-    static void FillerDirectory(const ASharedRwLock<SDirectory>& dir, void *buffer, fuse_fill_dir_t filler);
+    static void FillerDirectory(const ASharedRwLock<TDirectory>& dir, void *buffer, fuse_fill_dir_t filler);
 
     protected:
-    static ASharedRwLock<SDirectory> s_pRootDir;
+    static ASharedRwLock<TDirectory> s_pRootDir;
 };
 
 }

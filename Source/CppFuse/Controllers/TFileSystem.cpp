@@ -4,11 +4,14 @@
 #include <CppFuse/Models/Objects/SLink.hpp>
 #include <CppFuse/Models/Objects/SFile.hpp>
 #include <CppFuse/Models/Operations/TGetAttributes.hpp>
+#include <CppFuse/Helpers/SOverloadVariant.hpp>
 #include <cstring>
 
 namespace cppfuse {
 
 static constexpr std::string_view s_sRootPath = "/";
+const static constexpr std::string_view s_sCurrentPath = ".";
+const static constexpr std::string_view s_sParentPath = "..";
 
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
     const auto result = TFinder::Find(path);
@@ -37,7 +40,7 @@ int TFileSystem::MkDir(const char* path, mode_t mode) {
     const auto newDirPath = std::filesystem::path(path);
     auto parentDirRes = TFinder::FindDir(newDirPath.parent_path());
     if(!parentDirRes) return parentDirRes.error().Type();
-    SDirectory::New(newDirPath.filename(), mode, parentDirRes.value());
+    TDirectory::New(newDirPath.filename(), mode, parentDirRes.value());
     return 0;
 }
 
@@ -46,7 +49,7 @@ int TFileSystem::Unlink(const char* path) {
     const auto objRes = TFinder::Find(objPath);
     if(!objRes) return objRes.error().Type();
     const auto& obj = objRes.value();
-    if(std::holds_alternative<ASharedRwLock<SDirectory>>(obj)) {
+    if(std::holds_alternative<ASharedRwLock<TDirectory>>(obj)) {
         return NNFSExceptionType::NotFile;
     }
     std::visit([](const auto& obj) {
@@ -112,23 +115,35 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
 
 int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler, off_t offset,
     struct fuse_file_info* fi, enum fuse_readdir_flags flags) {
-    return 0;
-}
 
-ASharedRwLock<SDirectory> TFileSystem::s_pRootDir = SDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
-
-const ASharedRwLock<SDirectory>& TFileSystem::RootDir() { return s_pRootDir; }
-
-void TFileSystem::FillerBuffer(const std::string_view& name, void* buffer, fuse_fill_dir_t filler) {
-    filler(buffer, name.data(), NULL, 0, fuse_fill_dir_flags::FUSE_FILL_DIR_PLUS);
-}
-
-void TFileSystem::FillerDirectory(const ASharedRwLock<SDirectory>& dir, void* buffer, fuse_fill_dir_t filler) {
-    const auto dirRead = dir->Read();
-    for(const auto& var : dirRead->Objects) {
-        const auto name = std::visit(TGetInfoName{}, var);
-        FillerBuffer(name, buffer, filler);
+    for(const auto& p : {s_sCurrentPath, s_sParentPath}) {
+        FillerBuffer(p, buffer, filler);
     }
+    const auto dirPath = std::filesystem::path(path);
+    const auto& result = TFinder::Find(path);
+    if(!result) return result.error().Type();
+
+    return std::visit(SOverloadVariant {
+        [buffer, filler](const TStDirectory& dir) {
+            FillerDirectory(dir, buffer, filler);
+            return 0;
+        },
+        [buffer, filler](const TStLink& link) {
+            const auto dirRes = FindDir(link->LinkTo);
+            if(!dirRes) return PrintErrGetVal(dirRes.error());
+            FillerDirectory(dirRes.value(), buffer, filler);
+            return 0;
+        },
+        [dirPath](const TStFile& file) {
+            return PrintErrGetVal(TNotDirectoryException(dirPath.begin(), dirPath.end()));
+        }
+    }, result.value());
 }
+
+ASharedRwLock<TDirectory> TFileSystem::s_pRootDir = TDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
+
+const ASharedRwLock<TDirectory>& TFileSystem::RootDir() { return s_pRootDir; }
+
+
 
 }

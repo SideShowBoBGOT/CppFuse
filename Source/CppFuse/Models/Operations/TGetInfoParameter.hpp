@@ -1,66 +1,36 @@
 #ifndef CPPFUSE_TGETINFOPARAMETER_HPP
 #define CPPFUSE_TGETINFOPARAMETER_HPP
 
-#include "CppFuse/Models/Aliases/ASharedFileVariant.hpp"
-#include "CppFuse/Models/Concepts/CSharedRwFileObject.hpp"
-#include "CppFuse/Models/Concepts/CRwGuardFileObject.hpp"
+#include <CppFuse/Models/Objects/TFileObjects.hpp>
 
 namespace cppfuse {
 
-class TGetInfoName {
+template<typename FieldType, typename Derived>
+class TGetInfoParameter {
     public:
-    TGetInfoName()=default;
+    TGetInfoParameter()=default;
 
     public:
-    const std::string& operator()(const ASharedFileVariant& var);
-    const std::string& operator()(const CSharedRwFileObject auto& var);
-    const std::string& operator()(const CReadGuardFileObject auto& var);
-    std::string& operator()(const CWriteGuardFileObject auto& var);
+    const FieldType& operator()(const ASharedFileVariant& var) { return std::visit(*this, var); }
+    const FieldType& operator()(const CSharedRwFileObject auto& var) { return operator()(var->Read()); }
+    const FieldType& operator()(const CReadGuardFileObject auto& var) { return static_cast<const Derived&>(*this).operator()(var); }
+    FieldType& operator()(const CWriteGuardFileObject auto& var) { return static_cast<Derived&>(*this).operator()(var); }
 };
 
-class TGetInfoUid {
-    public:
-    TGetInfoUid()=default;
+#define DECLARE_CLASS(Name, FieldType)\
+    class TGetInfo##Name : public TGetInfoParameter<FieldType, TGetInfo##Name> {\
+        public:\
+        TGetInfo##Name()=default;\
+        const FieldType& operator()(const CReadGuardFileObject auto& var);\
+        FieldType& operator()(const CWriteGuardFileObject auto& var);\
+    };
 
-    public:
-    const uid_t& operator()(const ASharedFileVariant& var);
-    const uid_t& operator()(const CSharedRwFileObject auto& var);
-    const uid_t& operator()(const CReadGuardFileObject auto& var);
-    uid_t& operator()(const CWriteGuardFileObject auto& var);
-};
-
-class TGetInfoGid {
-    public:
-    TGetInfoGid()=default;
-
-    public:
-    const gid_t& operator()(const ASharedFileVariant& var);
-    const gid_t& operator()(const CSharedRwFileObject auto& var);
-    const gid_t& operator()(const CReadGuardFileObject auto& var);
-    gid_t& operator()(const CWriteGuardFileObject auto& var);
-};
-
-class TGetInfoMode {
-    public:
-    TGetInfoMode()=default;
-
-    public:
-    const mode_t& operator()(const ASharedFileVariant& var);
-    const mode_t& operator()(const CSharedRwFileObject auto& var);
-    const mode_t& operator()(const CReadGuardFileObject auto& var);
-    mode_t& operator()(const CWriteGuardFileObject auto& var);
-};
-
-class TGetInfoParent {
-    public:
-    TGetInfoParent()=default;
-
-    public:
-    const AWeakRwLock<SDirectory>& operator()(const ASharedFileVariant& var);
-    const AWeakRwLock<SDirectory>& operator()(const CSharedRwFileObject auto& var);
-    const AWeakRwLock<SDirectory>& operator()(const CReadGuardFileObject auto& var);
-    AWeakRwLock<SDirectory>& operator()(const CWriteGuardFileObject auto& var);
-};
+    DECLARE_CLASS(Name, std::string)
+    DECLARE_CLASS(Uid, uid_t)
+    DECLARE_CLASS(Gid, gid_t)
+    DECLARE_CLASS(Mode, mode_t)
+    DECLARE_CLASS(Parent, AWeakRwLock<TDirectory>)
+#undef DECLARE_CLASS
 
 }
 

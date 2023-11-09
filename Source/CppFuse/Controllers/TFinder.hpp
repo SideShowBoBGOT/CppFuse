@@ -2,16 +2,16 @@
 #define CPPFUSE_TFINDER_HPP
 
 #include <CppFuse/Errors/TFSException.hpp>
-#include "CppFuse/Models/Aliases/ASharedFileVariant.hpp"
+#include "CppFuse/Models/Objects/TFileObjects.hpp"
 
 namespace cppfuse {
 
 class TFinder {
     public:
     static AFSExpected<ASharedFileVariant> Find(const AStdPath& path);
-    static AFSExpected<ASharedRwLock<SDirectory>> FindDir(const AStdPath& path);
-    static AFSExpected<ASharedRwLock<SLink>> FindLink(const AStdPath& path);
-    static AFSExpected<ASharedRwLock<SFile>> FindFile(const AStdPath& path);
+    static AFSExpected<ASharedRwLock<TDirectory>> FindDir(const AStdPath& path);
+    static AFSExpected<ASharedRwLock<TLink>> FindLink(const AStdPath& path);
+    static AFSExpected<ASharedRwLock<TFile>> FindFile(const AStdPath& path);
 
     protected:
     template<typename T, auto FSExceptionValue>
@@ -19,10 +19,10 @@ class TFinder {
 
     protected:
     static AFSExpected<ASharedFileVariant>
-    RecursiveFindStepOne(const AStdPath& path, AStdPathIt it, const ASharedRwLock<SDirectory>& dir);
+    RecursiveFindStepOne(const AStdPath& path, AStdPathIt it, const ASharedRwLock<TDirectory>& dir);
 
     static AFSExpected<ASharedFileVariant>
-    RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it, const ASharedRwLock<SDirectory>& obj);
+    RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it, const ASharedRwLock<TDirectory>& obj);
 
     static AFSExpected<ASharedFileVariant>
     RecursiveFindStepTwo(const AStdPath& path, AStdPathIt it, const ASharedFileVariant & obj);
