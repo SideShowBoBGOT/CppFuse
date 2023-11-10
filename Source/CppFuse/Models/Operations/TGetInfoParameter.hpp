@@ -11,18 +11,17 @@ class TGetInfoParameter {
     TGetInfoParameter()=default;
 
     public:
-    const FieldType& operator()(const ASharedFileVariant& var) { return std::visit(*this, var); }
-    const FieldType& operator()(const CSharedRwFileObject auto& var) { return operator()(var->Read()); }
-    const FieldType& operator()(const CReadGuardFileObject auto& var) { return static_cast<const Derived&>(*this).operator()(var); }
-    FieldType& operator()(const CWriteGuardFileObject auto& var) { return static_cast<Derived&>(*this).operator()(var); }
+    const FieldType& operator()(const ASharedFileVariant& var) const { return std::visit(*this, var); }
+    const FieldType& operator()(const CSharedRwFileObject auto& var) const { return static_cast<const Derived*>(this)->operator()(var->Read()); }
 };
 
 #define DECLARE_CLASS(Name, FieldType)\
     class TGetInfo##Name : public TGetInfoParameter<FieldType, TGetInfo##Name> {\
         public:\
+        using TGetInfoParameter<FieldType, TGetInfo##Name>::operator();\
         TGetInfo##Name()=default;\
-        const FieldType& operator()(const CReadGuardFileObject auto& var);\
-        FieldType& operator()(const CWriteGuardFileObject auto& var);\
+        const FieldType& operator()(const CReadGuardFileObject auto& var) const;\
+        FieldType& operator()(const CWriteGuardFileObject auto& var) const;\
     };
 
     DECLARE_CLASS(Name, std::string)

@@ -1,7 +1,7 @@
 #ifndef CPPFUSE_TREADDIRECTORY_HPP
 #define CPPFUSE_TREADDIRECTORY_HPP
 
-#include <CppFuse/Models/Aliases/ASharedFileVariant.hpp>
+#include <CppFuse/Models/Objects/TFileObjects.hpp>
 #include <CppFuse/Errors/TFSException.hpp>
 #include <fuse3/fuse.h>
 #include <string_view>
@@ -10,25 +10,23 @@ namespace cppfuse {
 
 class TReadDirectory {
     public:
-    static AFSExpected<std::monostate> Do(const char* path, void* buffer, fuse_fill_dir_t filler);
-
-    protected:
     TReadDirectory(const char* path, void* buffer, fuse_fill_dir_t filler);
 
+    void operator()();
+
     protected:
-    AFSExpected<std::monostate> operator()(const ASharedFileVariant& var);
-    AFSExpected<std::monostate> operator()(const ASharedRwLock<TDirectory>& var);
-    AFSExpected<std::monostate> operator()(const ASharedRwLock<SFile>& var);
-    AFSExpected<std::monostate> operator()(const ASharedRwLock<SLink>& var);
+    void DoReadDir(const ASharedRwLock<TDirectory>& var);
+    void DoReadDir(const ASharedRwLock<TFile>& var);
+    void DoReadDir(const ASharedRwLock<TLink>& var);
 
     protected:
     void FillerBuffer(const std::string_view& name);
     void FillerDirectory(const ASharedRwLock<TDirectory>& dir);
 
     protected:
-    const char* m_Path = nullptr;
-    void* m_Buffer = nullptr;
-    fuse_fill_dir_t m_Filler = nullptr;
+    const char* m_pPath = nullptr;
+    void* m_pBuffer = nullptr;
+    fuse_fill_dir_t m_xFiller = nullptr;
 };
 
 }

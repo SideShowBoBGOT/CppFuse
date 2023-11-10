@@ -21,24 +21,24 @@ using ASharedFileVariant = std::variant<
 >;
 
 template<typename T>
-concept CFileObject = std::same_as<T, TDirectory> || std::same_as<T, TFile> || std::same_as<T, TLink>;
+concept CFileObject = std::is_same_v<T, TDirectory> || std::is_same_v<T, TFile> || std::is_same_v<T, TLink>;
 
 template<typename T>
-concept CReadGuardFileObject = std::same_as<T, rwl::TRwLockReadGuard<TDirectory>>
-    || std::same_as<T, rwl::TRwLockReadGuard<TFile>>
-    || std::same_as<T, rwl::TRwLockReadGuard<TLink>>;
+concept CReadGuardFileObject = std::is_same_v<T, rwl::TRwLockReadGuard<TDirectory>>
+    || std::is_same_v<T, rwl::TRwLockReadGuard<TFile>>
+    || std::is_same_v<T, rwl::TRwLockReadGuard<TLink>>;
 
 template<typename T>
-concept CWriteGuardFileObject = std::same_as<T, rwl::TRwLockWriteGuard<TDirectory>>
-    || std::same_as<T, rwl::TRwLockWriteGuard<TFile>>
-    || std::same_as<T, rwl::TRwLockWriteGuard<TLink>>;
+concept CWriteGuardFileObject = std::is_same_v<T, rwl::TRwLockWriteGuard<TDirectory>>
+    || std::is_same_v<T, rwl::TRwLockWriteGuard<TFile>>
+    || std::is_same_v<T, rwl::TRwLockWriteGuard<TLink>>;
 
 template<typename T>
 concept CGuardFileObject = CReadGuardFileObject<T> || CWriteGuardFileObject<T>;
 
 template<typename T>
-concept CSharedRwFileObject = std::same_as<T, ASharedRwLock<TDirectory>>
-    || std::same_as<T, ASharedRwLock<TFile>> || std::same_as<T, ASharedRwLock<TLink>>;
+concept CSharedRwFileObject = std::is_same_v<T, ASharedRwLock<TDirectory>>
+    || std::is_same_v<T, ASharedRwLock<TFile>> || std::is_same_v<T, ASharedRwLock<TLink>>;
 
 class TDirectory : public TInfo<TDirectory> {
     public:

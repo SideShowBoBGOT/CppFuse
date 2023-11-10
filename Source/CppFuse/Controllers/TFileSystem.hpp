@@ -3,7 +3,7 @@
 
 #define FUSE_USE_VERSION 30
 
-#include <CppFuse/Helpers/ASharedLock.hpp>
+#include <CppFuse/Models/Objects/TFileObjects.hpp>
 
 #include <fuse3/fuse.h>
 #include <filesystem>
@@ -26,10 +26,6 @@ class TFileSystem {
 
     public:
     static const ASharedRwLock<TDirectory>& RootDir();
-
-    protected:
-    static void FillerBuffer(const std::string_view& name , void *buffer, fuse_fill_dir_t filler);
-    static void FillerDirectory(const ASharedRwLock<TDirectory>& dir, void *buffer, fuse_fill_dir_t filler);
 
     protected:
     static ASharedRwLock<TDirectory> s_pRootDir;
