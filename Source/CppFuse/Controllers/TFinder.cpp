@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <array>
 
-//#include <iostream>
-
 namespace cppfuse {
 
 static constexpr std::string_view s_sSelfName = ".";

@@ -2,6 +2,7 @@
 #define CPPFUSE_TSETINFOPARAMETER_HPP
 
 #include <CppFuse/Models/Objects/TFileObjects.hpp>
+#include <CppFuse/Models/Operations/TGetInfoType.hpp>
 
 namespace cppfuse {
 
@@ -24,33 +25,67 @@ class TSetInfoParameterGeneralMixin : public TSetInfoParameterMixin<ParamType> {
     using TSetInfoParameterMixin<ParamType>::operator();
     void operator()(const CSharedRwFileObject auto& var) {
         auto writeObj = var->Write();
-        static_cast<DerivedType*>(this)->operator()(var->Write());
+        reinterpret_cast<DerivedType*>(this)->operator()(var->Write());
     }
 };
 
-#define DECLARE_CLASS(Name, ParamType)\
-    class TSetInfo##Name : public TSetInfoParameterGeneralMixin<ParamType, TSetInfo##Name> {\
-        public:\
-        TSetInfo##Name(const ParamType& param); \
-        using TSetInfoParameterGeneralMixin<ParamType, TSetInfo##Name>::operator();\
-        void operator()(CWriteGuardFileObject auto& var);\
-    };
+class TSetInfoName : public TSetInfoParameterGeneralMixin<std::string, TSetInfoName> {
+    public:
+    TSetInfoName(const std::string& param)
+        : TSetInfoParameterGeneralMixin<std::string, TSetInfoName>(param) {}
+    using TSetInfoParameterGeneralMixin<std::string, TSetInfoName>::operator();
+    void operator()(CWriteGuardFileObject auto& var) {
+        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_sName = m_xParam;
+    }
+};
 
-    DECLARE_CLASS(Name, std::string)
-    DECLARE_CLASS(Uid, uid_t)
-    DECLARE_CLASS(Gid, gid_t)
-    DECLARE_CLASS(Mode, mode_t)
-#undef DECLARE_CLASS
+class TSetInfoUid : public TSetInfoParameterGeneralMixin<uid_t, TSetInfoUid> {
+    public:
+    TSetInfoUid(const uid_t& param)
+        : TSetInfoParameterGeneralMixin<uid_t, TSetInfoUid>(param) {}
+    using TSetInfoParameterGeneralMixin<uid_t, TSetInfoUid>::operator();
+    void operator()(CWriteGuardFileObject auto& var) {
+        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_uUid = m_xParam;
+    }
+};
 
+class TSetInfoGid : public TSetInfoParameterGeneralMixin<gid_t, TSetInfoGid> {
+    public:
+    TSetInfoGid(const gid_t& param)
+        : TSetInfoParameterGeneralMixin<gid_t, TSetInfoGid>(param) {}
+    using TSetInfoParameterGeneralMixin<gid_t, TSetInfoGid>::operator();
+    void operator()(CWriteGuardFileObject auto& var) {
+        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_uGid = m_xParam;
+    }
+};
+
+class TSetInfoMode : public TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode> {
+    public:
+    TSetInfoMode(const gid_t& param)
+        : TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode>(param) {}
+    using TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode>::operator();
+    void operator()(CWriteGuardFileObject auto& var) {
+        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_uMode = m_xParam | TGetInfoType{}(var);
+    }
+};
 
 class TSetInfoParent : public TSetInfoParameterMixin<ASharedRwLock<TDirectory>> {
     public:
-    TSetInfoParent(const ASharedRwLock<TDirectory>& param);
+    TSetInfoParent(const ASharedRwLock<TDirectory>& param)
+        : TSetInfoParameterMixin<ASharedRwLock<TDirectory>>(param) {}
     using TSetInfoParameterMixin<ASharedRwLock<TDirectory>>::operator();
-    void operator()(const CSharedRwFileObject auto& var);
+    void operator()(const CSharedRwFileObject auto& var) {
+        auto varWrite = var->Write();
+        reinterpret_cast<TSetInfoParent*>(this)->operator()(varWrite);
+        if(m_xParam) {
+            m_xParam->Write()->Objects.push_back(var);
+        }
+    }
 
     protected:
-    void operator()(CWriteGuardFileObject auto& var);
+    void operator()(CWriteGuardFileObject auto& var) {
+        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_pParent = m_xParam;
+    }
 };
 
 }

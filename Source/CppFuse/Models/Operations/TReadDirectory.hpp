@@ -1,6 +1,8 @@
 #ifndef CPPFUSE_TREADDIRECTORY_HPP
 #define CPPFUSE_TREADDIRECTORY_HPP
 
+#define FUSE_USE_VERSION 30
+
 #include <CppFuse/Models/Objects/TFileObjects.hpp>
 #include <CppFuse/Errors/TFSException.hpp>
 #include <fuse3/fuse.h>

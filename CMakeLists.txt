@@ -5,13 +5,12 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_FLAGS -Wall)
 
 add_executable(${PROJECT_NAME} main.cpp
+        Source/CppFuse/Models/Operations/TGetAttributes.cpp
+        Source/CppFuse/Models/Operations/TReadDirectory.cpp
         Source/CppFuse/Controllers/TFileSystem.cpp
         Source/CppFuse/Errors/TFSException.cpp
         Source/CppFuse/Controllers/TFinder.cpp
-        Source/CppFuse/Models/Operations/TGetAttributes.cpp
-        Source/CppFuse/Models/Operations/TSetInfoParameter.cpp
-        Source/CppFuse/Models/Operations/TGetInfoParameter.cpp
-        Source/CppFuse/Models/Operations/TReadDirectory.cpp)
+        Source/CppFuse/Models/Objects/TFileObjects.cpp)
 
 add_subdirectory(external)
 target_include_directories(${PROJECT_NAME} PRIVATE Source)
