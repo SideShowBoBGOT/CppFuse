@@ -1,9 +1,9 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
 #include <CppFuse/Controllers/TFindFile.hpp>
-#include "TGetFileAttributes.hpp"
-#include "TGetFileParameter.hpp"
-#include "TSetFileParameter.hpp"
-#include "TReadDirectory.hpp"
+#include <CppFuse/Controllers/TGetFileAttributes.hpp>
+#include <CppFuse/Controllers/TSetFileParameter.hpp>
+#include <CppFuse/Controllers/TReadDirectory.hpp>
+#include <CppFuse/Errors/TFSException.hpp>
 #include <cstring>
 
 namespace cppfuse {
@@ -101,10 +101,9 @@ int TFileSystem::RmDir(const char* path) {
 
 int TFileSystem::SymLink(const char* target_path, const char* link_path) {
     const auto linkPath = std::filesystem::path(link_path);
-    const auto linkName = linkPath.filename().c_str();
     try {
         const auto parentDir = TFindFile::FindDir(linkPath.parent_path());
-        TLink::New(linkName, static_cast<mode_t>(0777), parentDir, target_path);
+        TLink::New(linkPath.filename(), static_cast<mode_t>(0775), parentDir, target_path);
         return 0;
     } catch (const TFSException& ex) {
         return ex.Type();

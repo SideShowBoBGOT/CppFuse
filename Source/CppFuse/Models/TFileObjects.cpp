@@ -3,7 +3,7 @@
 
 namespace cppfuse {
 
-static void Update(rwl::TRwLockWriteGuard<TLink>& writeObj, const char* path) {
+static void Update(rwl::TRwLockWriteGuard<TLink>& writeObj, const fs::path& path) {
     writeObj->LinkTo = path;
 }
 
@@ -33,7 +33,7 @@ ASharedRwLock<TRegularFile> TRegularFile::New(const std::string& name, mode_t mo
     return DoNew<TRegularFile>(name, mode, parent);
 }
 
-ASharedRwLock<TLink> TLink::New(const std::string& name, mode_t mode, const ASharedRwLock<cppfuse::TDirectory>& parent, const char* path) {
+ASharedRwLock<TLink> TLink::New(const std::string& name, mode_t mode, const ASharedRwLock<cppfuse::TDirectory>& parent, const fs::path& path) {
     return DoNew<TLink>(name, mode, parent, path);
 }
 

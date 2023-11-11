@@ -11,7 +11,7 @@ static constexpr std::string_view s_sSelfName = ".";
 static constexpr std::string_view s_sParentName = "..";
 
 template<typename T, auto FSExceptionValue>
-ASharedRwLock<T> FindGeneral(const std::filesystem::path& path) {
+ASharedRwLock<T> FindGeneral(const fs::path& path) {
     const auto obj = TFindFile::Find(path);
     if(const auto t = std::get_if<ASharedRwLock<T>>(&obj)) {
         return *t;
@@ -19,24 +19,24 @@ ASharedRwLock<T> FindGeneral(const std::filesystem::path& path) {
     throw TFSException(path.begin(), path.end(), FSExceptionValue);
 }
 
-ASharedFileVariant TFindFile::Find(const std::filesystem::path& path) {
+ASharedFileVariant TFindFile::Find(const fs::path& path) {
     return RecursiveFindStepOne(path, path.begin(), TFileSystem::RootDir());
 }
 
-ASharedRwLock<TDirectory> TFindFile::FindDir(const std::filesystem::path& path) {
+ASharedRwLock<TDirectory> TFindFile::FindDir(const fs::path& path) {
     return FindGeneral<TDirectory, NFSExceptionType::NotDirectory>(path);
 }
 
-ASharedRwLock<TLink> TFindFile::FindLink(const std::filesystem::path& path) {
+ASharedRwLock<TLink> TFindFile::FindLink(const fs::path& path) {
     return FindGeneral<TLink, NFSExceptionType::NotLink>(path);
 }
 
-ASharedRwLock<TRegularFile> TFindFile::FindFile(const std::filesystem::path& path) {
+ASharedRwLock<TRegularFile> TFindFile::FindFile(const fs::path& path) {
     return FindGeneral<TRegularFile, NFSExceptionType::NotFile>(path);
 }
 
-ASharedFileVariant TFindFile::RecursiveFindStepOne(const std::filesystem::path& path,
-    std::filesystem::path::iterator it, const ASharedRwLock<TDirectory>& dir) {
+ASharedFileVariant TFindFile::RecursiveFindStepOne(const fs::path& path,
+    fs::path::iterator it, const ASharedRwLock<TDirectory>& dir) {
 
     const auto dirRead = dir->Read();
     const auto itName = std::string_view(it->c_str());
@@ -61,8 +61,8 @@ ASharedFileVariant TFindFile::RecursiveFindStepOne(const std::filesystem::path& 
     return RecursiveFindStepTwo(path, it, *childIt);
 }
 
-ASharedFileVariant TFindFile::RecursiveFindStepTwo(const std::filesystem::path& path,
-    std::filesystem::path::iterator it, const ASharedRwLock<TDirectory>& obj) {
+ASharedFileVariant TFindFile::RecursiveFindStepTwo(const fs::path& path,
+    fs::path::iterator it, const ASharedRwLock<TDirectory>& obj) {
 
     if(std::distance(it, path.end()) == 1) {
         return obj;
@@ -70,8 +70,8 @@ ASharedFileVariant TFindFile::RecursiveFindStepTwo(const std::filesystem::path& 
     return RecursiveFindStepOne(path, ++it, obj);
 }
 
-ASharedFileVariant TFindFile::RecursiveFindStepTwo(const std::filesystem::path& path,
-    std::filesystem::path::iterator it, const ASharedFileVariant& obj) {
+ASharedFileVariant TFindFile::RecursiveFindStepTwo(const fs::path& path,
+    fs::path::iterator it, const ASharedFileVariant& obj) {
 
     if(std::distance(it, path.end()) == 1) {
         return obj;

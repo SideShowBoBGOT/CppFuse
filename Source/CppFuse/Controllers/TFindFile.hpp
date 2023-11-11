@@ -7,20 +7,20 @@ namespace cppfuse {
 
 class TFindFile {
     public:
-    static ASharedFileVariant Find(const std::filesystem::path& path);
-    static ASharedRwLock<TDirectory> FindDir(const std::filesystem::path& path);
-    static ASharedRwLock<TLink> FindLink(const std::filesystem::path& path);
-    static ASharedRwLock<TRegularFile> FindFile(const std::filesystem::path& path);
+    static ASharedFileVariant Find(const fs::path& path);
+    static ASharedRwLock<TDirectory> FindDir(const fs::path& path);
+    static ASharedRwLock<TLink> FindLink(const fs::path& path);
+    static ASharedRwLock<TRegularFile> FindFile(const fs::path& path);
 
     protected:
-    static ASharedFileVariant RecursiveFindStepOne(const std::filesystem::path& path,
-        std::filesystem::path::iterator it, const ASharedRwLock<TDirectory>& dir);
+    static ASharedFileVariant RecursiveFindStepOne(const fs::path& path,
+        fs::path::iterator it, const ASharedRwLock<TDirectory>& dir);
 
-    static ASharedFileVariant RecursiveFindStepTwo(const std::filesystem::path& path,
-        std::filesystem::path::iterator it, const ASharedRwLock<TDirectory>& obj);
+    static ASharedFileVariant RecursiveFindStepTwo(const fs::path& path,
+        fs::path::iterator it, const ASharedRwLock<TDirectory>& obj);
 
-    static ASharedFileVariant RecursiveFindStepTwo(const std::filesystem::path& path,
-        std::filesystem::path::iterator it, const ASharedFileVariant & obj);
+    static ASharedFileVariant RecursiveFindStepTwo(const fs::path& path,
+        fs::path::iterator it, const ASharedFileVariant & obj);
 
 };
 

@@ -60,13 +60,15 @@ class TRegularFile : public TFile<TDirectory> {
     static constexpr NFileType FileType = NFileType::File;
 };
 
+namespace fs = std::filesystem;
+
 class TLink : TFile<TDirectory> {
     public:
     TLink()=default;
-    static ASharedRwLock<TLink> New(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent, const char* path);
+    static ASharedRwLock<TLink> New(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent, const fs::path& path);
 
     public:
-    std::filesystem::path LinkTo;
+    fs::path LinkTo;
     static constexpr NFileType FileType = NFileType::Link;
 };
 

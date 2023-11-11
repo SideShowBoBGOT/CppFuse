@@ -15,7 +15,7 @@ class TGetFileParameter {
         return std::visit(*this, var);
     }
     const FieldType& operator()(const CSharedRwFileObject auto& var) {
-        return reinterpret_cast<const Derived*>(this)->operator()(var->Read());
+        return reinterpret_cast<Derived*>(this)->operator()(var->Read());
     }
 };
 

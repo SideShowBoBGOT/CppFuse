@@ -3,8 +3,7 @@
 
 #define FUSE_USE_VERSION 30
 
-#include "CppFuse/Models/TFileObjects.hpp"
-#include "CppFuse/Errors/TFSException.hpp"
+#include <CppFuse/Models/TFileObjects.hpp>
 #include <fuse3/fuse.h>
 #include <string_view>
 
@@ -12,7 +11,7 @@ namespace cppfuse {
 
 class TReadDirectory {
     public:
-    TReadDirectory(const char* path, void* buffer, fuse_fill_dir_t filler);
+    TReadDirectory(const fs::path& path, void* buffer, fuse_fill_dir_t filler);
 
     void operator()();
 
@@ -26,7 +25,7 @@ class TReadDirectory {
     void FillerDirectory(const ASharedRwLock<TDirectory>& dir);
 
     protected:
-    const char* m_pPath = nullptr;
+    const fs::path& m_pPath;
     void* m_pBuffer = nullptr;
     fuse_fill_dir_t m_xFiller = nullptr;
 };

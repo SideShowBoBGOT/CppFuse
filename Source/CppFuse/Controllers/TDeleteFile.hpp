@@ -7,10 +7,12 @@ namespace cppfuse {
 
 class TDeleteFile {
     public:
-    void operator()(const ASharedFileVariant& var);
-    void operator()(const ASharedRwLock<TDirectory>& var);
-    void operator()(const ASharedRwLock<TRegularFile>& var);
-    void operator()(const ASharedRwLock<TLink>& var);
+    void operator()(const char* path);
+
+    protected:
+    void Delete(const ASharedRwLock<TDirectory>& var);
+    void Delete(const ASharedRwLock<TRegularFile>& var);
+    void Delete(const ASharedRwLock<TLink>& var);
 
     protected:
 

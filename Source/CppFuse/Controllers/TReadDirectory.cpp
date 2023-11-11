@@ -1,10 +1,11 @@
 #include "TReadDirectory.hpp"
 #include "TGetFileParameter.hpp"
+#include <CppFuse/Errors/TFSException.hpp>
 #include "TFindFile.hpp"
 
 namespace cppfuse {
 
-TReadDirectory::TReadDirectory(const char* path, void* buffer, fuse_fill_dir_t filler)
+TReadDirectory::TReadDirectory(const fs::path& path, void* buffer, fuse_fill_dir_t filler)
     : m_pPath{path}, m_pBuffer{buffer}, m_xFiller{filler} {}
 
 void TReadDirectory::operator()() {
