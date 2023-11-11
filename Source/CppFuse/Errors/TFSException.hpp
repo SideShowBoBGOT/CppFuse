@@ -8,12 +8,11 @@
 
 namespace cppfuse {
 
-using AStdPath = std::filesystem::path;
-using AStdPathIt = std::filesystem::path::iterator;
-
 class TFSException : public std::exception {
     public:
-    TFSException(AStdPathIt begin, AStdPathIt end, NFSExceptionType type);
+    TFSException(std::filesystem::path::iterator begin,
+        std::filesystem::path::iterator end, NFSExceptionType type);
+
     TFSException(const char* path, NFSExceptionType type);
     virtual const char* what() const noexcept override;
     [[nodiscard]] NFSExceptionType Type() const;

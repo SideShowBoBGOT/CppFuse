@@ -1,6 +1,6 @@
-#include <CppFuse/Models/Operations/TReadDirectory.hpp>
-#include <CppFuse/Models/Operations/TGetInfoParameter.hpp>
-#include <CppFuse/Controllers/TFinder.hpp>
+#include "TReadDirectory.hpp"
+#include "TGetFileParameter.hpp"
+#include "TFindFile.hpp"
 
 namespace cppfuse {
 
@@ -8,7 +8,7 @@ TReadDirectory::TReadDirectory(const char* path, void* buffer, fuse_fill_dir_t f
     : m_pPath{path}, m_pBuffer{buffer}, m_xFiller{filler} {}
 
 void TReadDirectory::operator()() {
-    const auto res = TFinder::Find(m_pPath);
+    const auto res = TFindFile::Find(m_pPath);
     return std::visit([this](const auto& obj) { return DoReadDir(obj); }, res);
 }
 
@@ -16,13 +16,13 @@ void TReadDirectory::DoReadDir(const ASharedRwLock<TDirectory>& var) {
     FillerDirectory(var);
 }
 
-void TReadDirectory::DoReadDir(const ASharedRwLock<TFile>& var) {
+void TReadDirectory::DoReadDir(const ASharedRwLock<TRegularFile>& var) {
     throw TFSException(m_pPath, NFSExceptionType::NotDirectory);
 }
 
 void TReadDirectory::DoReadDir(const ASharedRwLock<TLink>& var) {
     const auto varRead = var->Read();
-    const auto dir = TFinder::FindDir(varRead->LinkTo);
+    const auto dir = TFindFile::FindDir(varRead->LinkTo);
     FillerDirectory(dir);
 }
 

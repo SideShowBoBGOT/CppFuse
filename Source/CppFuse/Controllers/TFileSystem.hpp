@@ -3,7 +3,7 @@
 
 #define FUSE_USE_VERSION 30
 
-#include <CppFuse/Models/Objects/TFileObjects.hpp>
+#include "CppFuse/Models/TFileObjects.hpp"
 
 #include <fuse3/fuse.h>
 #include <filesystem>

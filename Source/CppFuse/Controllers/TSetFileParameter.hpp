@@ -1,8 +1,8 @@
-#ifndef CPPFUSE_TSETINFOPARAMETER_HPP
-#define CPPFUSE_TSETINFOPARAMETER_HPP
+#ifndef CPPFUSE_TSETFILEPARAMETER_HPP
+#define CPPFUSE_TSETFILEPARAMETER_HPP
 
-#include <CppFuse/Models/Objects/TFileObjects.hpp>
-#include <CppFuse/Models/Operations/TGetInfoType.hpp>
+#include "CppFuse/Models/TFileObjects.hpp"
+#include "TGetFileType.hpp"
 
 namespace cppfuse {
 
@@ -35,7 +35,7 @@ class TSetInfoName : public TSetInfoParameterGeneralMixin<std::string, TSetInfoN
         : TSetInfoParameterGeneralMixin<std::string, TSetInfoName>(param) {}
     using TSetInfoParameterGeneralMixin<std::string, TSetInfoName>::operator();
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_sName = m_xParam;
+        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_sName = m_xParam;
     }
 };
 
@@ -45,7 +45,7 @@ class TSetInfoUid : public TSetInfoParameterGeneralMixin<uid_t, TSetInfoUid> {
         : TSetInfoParameterGeneralMixin<uid_t, TSetInfoUid>(param) {}
     using TSetInfoParameterGeneralMixin<uid_t, TSetInfoUid>::operator();
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_uUid = m_xParam;
+        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_uUid = m_xParam;
     }
 };
 
@@ -55,7 +55,7 @@ class TSetInfoGid : public TSetInfoParameterGeneralMixin<gid_t, TSetInfoGid> {
         : TSetInfoParameterGeneralMixin<gid_t, TSetInfoGid>(param) {}
     using TSetInfoParameterGeneralMixin<gid_t, TSetInfoGid>::operator();
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_uGid = m_xParam;
+        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_uGid = m_xParam;
     }
 };
 
@@ -65,7 +65,7 @@ class TSetInfoMode : public TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode> 
         : TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode>(param) {}
     using TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode>::operator();
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_uMode = m_xParam | TGetInfoType{}(var);
+        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_uMode = m_xParam | TGetFileType{}(var);
     }
 };
 
@@ -84,10 +84,10 @@ class TSetInfoParent : public TSetInfoParameterMixin<ASharedRwLock<TDirectory>> 
 
     protected:
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TInfo<TDirectory>*>(var.GetPtr())->m_pParent = m_xParam;
+        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_pParent = m_xParam;
     }
 };
 
 }
 
-#endif //CPPFUSE_TSETINFOPARAMETER_HPP
+#endif //CPPFUSE_TSETFILEPARAMETER_HPP

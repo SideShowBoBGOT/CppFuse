@@ -3,8 +3,8 @@
 
 #define FUSE_USE_VERSION 30
 
-#include <CppFuse/Models/Objects/TFileObjects.hpp>
-#include <CppFuse/Errors/TFSException.hpp>
+#include "CppFuse/Models/TFileObjects.hpp"
+#include "CppFuse/Errors/TFSException.hpp"
 #include <fuse3/fuse.h>
 #include <string_view>
 
@@ -18,7 +18,7 @@ class TReadDirectory {
 
     protected:
     void DoReadDir(const ASharedRwLock<TDirectory>& var);
-    void DoReadDir(const ASharedRwLock<TFile>& var);
+    void DoReadDir(const ASharedRwLock<TRegularFile>& var);
     void DoReadDir(const ASharedRwLock<TLink>& var);
 
     protected:

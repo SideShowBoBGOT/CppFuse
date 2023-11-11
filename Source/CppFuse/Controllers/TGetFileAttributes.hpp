@@ -1,15 +1,15 @@
-#ifndef CPPFUSE_TGETATTRIBUTES_HPP
-#define CPPFUSE_TGETATTRIBUTES_HPP
+#ifndef CPPFUSE_TGETFILEATTRIBUTES_HPP
+#define CPPFUSE_TGETFILEATTRIBUTES_HPP
 
-#include <CppFuse/Models/Objects/TFileObjects.hpp>
-#include <CppFuse/Models/Operations/TGetInfoParameter.hpp>
+#include "CppFuse/Models/TFileObjects.hpp"
+#include "TGetFileParameter.hpp"
 #include <sys/stat.h>
 
 namespace cppfuse {
 
-class TGetAttributes {
+class TGetFileAttributes {
     public:
-    explicit TGetAttributes(struct stat* st);
+    explicit TGetFileAttributes(struct stat* st);
 
     public:
     void operator()(const ASharedFileVariant& var);
@@ -24,7 +24,7 @@ class TGetAttributes {
 
     protected:
     void UpdateSize(const rwl::TRwLockReadGuard<TDirectory>& varRead);
-    void UpdateSize(const rwl::TRwLockReadGuard<TFile>& varRead);
+    void UpdateSize(const rwl::TRwLockReadGuard<TRegularFile>& varRead);
     void UpdateSize(const rwl::TRwLockReadGuard<TLink>& varRead);
 
     protected:
@@ -33,4 +33,4 @@ class TGetAttributes {
 
 }
 
-#endif //CPPFUSE_TGETATTRIBUTES_HPP
+#endif //CPPFUSE_TGETFILEATTRIBUTES_HPP

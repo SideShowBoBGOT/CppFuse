@@ -1,14 +1,14 @@
-#ifndef CPPFUSE_TGETINFOTYPE_HPP
-#define CPPFUSE_TGETINFOTYPE_HPP
+#ifndef CPPFUSE_TGETFILETYPE_HPP
+#define CPPFUSE_TGETFILETYPE_HPP
 
-#include <CppFuse/Models/Objects/NNFileType.hpp>
-#include <CppFuse/Models/Objects/TFileObjects.hpp>
+#include "CppFuse/Models/NNFileType.hpp"
+#include "CppFuse/Models/TFileObjects.hpp"
 
 namespace cppfuse {
 
-class TGetInfoType {
+class TGetFileType {
     public:
-    constexpr TGetInfoType()=default;
+    constexpr TGetFileType()=default;
 
     public:
     constexpr NFileType operator()(const ASharedFileVariant& var) { return std::visit(*this, var); }
@@ -22,4 +22,4 @@ class TGetInfoType {
 
 }
 
-#endif //CPPFUSE_TGETINFOTYPE_HPP
+#endif //CPPFUSE_TGETFILETYPE_HPP

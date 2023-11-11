@@ -1,11 +1,10 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
-#include <CppFuse/Controllers/TFinder.hpp>
-#include <CppFuse/Models/Operations/TGetAttributes.hpp>
-#include <CppFuse/Models/Operations/TGetInfoParameter.hpp>
-#include <CppFuse/Models/Operations/TSetInfoParameter.hpp>
-#include <CppFuse/Models/Operations/TReadDirectory.hpp>
+#include <CppFuse/Controllers/TFindFile.hpp>
+#include "TGetFileAttributes.hpp"
+#include "TGetFileParameter.hpp"
+#include "TSetFileParameter.hpp"
+#include "TReadDirectory.hpp"
 #include <cstring>
-#include <algorithm>
 
 namespace cppfuse {
 
@@ -15,8 +14,8 @@ const static constexpr std::string_view s_sParentPath = "..";
 
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
     try {
-        const auto result = TFinder::Find(path);
-        TGetAttributes{st}(result);
+        const auto result = TFindFile::Find(path);
+        TGetFileAttributes{st}(result);
         return 0;
     } catch(const TFSException& ex) {
         return ex.Type();
@@ -25,7 +24,7 @@ int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_inf
 
 int TFileSystem::ReadLink(const char* path, char* buffer, size_t size) {
     try {
-        const auto link = TFinder::FindLink(path);
+        const auto link = TFindFile::FindLink(path);
         std::memcpy(buffer, link->Read()->LinkTo.c_str(), size);
         return 0;
     } catch(const TFSException& ex) {
@@ -36,8 +35,8 @@ int TFileSystem::ReadLink(const char* path, char* buffer, size_t size) {
 int TFileSystem::MkNod(const char* path, mode_t mode, dev_t rdev) {
     try {
         const auto newDirPath = std::filesystem::path(path);
-        auto parentDir = TFinder::FindDir(newDirPath.parent_path());
-        TFile::New(newDirPath.filename(), mode, parentDir);
+        auto parentDir = TFindFile::FindDir(newDirPath.parent_path());
+        TRegularFile::New(newDirPath.filename(), mode, parentDir);
         return 0;
     } catch(const TFSException& ex) {
         return ex.Type();
@@ -47,7 +46,7 @@ int TFileSystem::MkNod(const char* path, mode_t mode, dev_t rdev) {
 int TFileSystem::MkDir(const char* path, mode_t mode) {
     try {
         const auto newDirPath = std::filesystem::path(path);
-        auto parentDir = TFinder::FindDir(newDirPath.parent_path());
+        auto parentDir = TFindFile::FindDir(newDirPath.parent_path());
         TDirectory::New(newDirPath.filename(), mode, parentDir);
         return 0;
     } catch(const TFSException& ex) {
@@ -59,7 +58,7 @@ int TFileSystem::Unlink(const char* path) {
     // TODO: INCORRECT IMPLEMENTATION? Is there possibility of deadlock???
     return -1;
 //    const auto objPath = std::filesystem::path(path);
-//    const auto objRes = TFinder::Find(objPath);
+//    const auto objRes = TFindFile::Find(objPath);
 //    if(!objRes) return objRes.error().Type();
 //    const auto& obj = objRes.value();
 //    if(std::holds_alternative<ASharedRwLock<TDirectory>>(obj)) {
@@ -86,7 +85,7 @@ int TFileSystem::RmDir(const char* path) {
 //    const auto objPath = std::filesystem::path(path);
 //    ASharedRwLock<TDirectory> parentDir = nullptr;
 //    try {
-//        parentDir = TFinder::FindDir(objPath.parent_path());
+//        parentDir = TFindFile::FindDir(objPath.parent_path());
 //    } catch (const TFSException& ex) {
 //        return ex.Type();
 //    }
@@ -104,7 +103,7 @@ int TFileSystem::SymLink(const char* target_path, const char* link_path) {
     const auto linkPath = std::filesystem::path(link_path);
     const auto linkName = linkPath.filename().c_str();
     try {
-        const auto parentDir = TFinder::FindDir(linkPath.parent_path());
+        const auto parentDir = TFindFile::FindDir(linkPath.parent_path());
         TLink::New(linkName, static_cast<mode_t>(0777), parentDir, target_path);
         return 0;
     } catch (const TFSException& ex) {
@@ -114,7 +113,7 @@ int TFileSystem::SymLink(const char* target_path, const char* link_path) {
 
 int TFileSystem::ChMod(const char* path, mode_t mode, struct fuse_file_info* fi) {
     try {
-        const auto var = TFinder::Find(path);
+        const auto var = TFindFile::Find(path);
         TSetInfoMode{mode}(var);
     } catch (const TFSException& ex) {
         return ex.Type();
@@ -124,7 +123,7 @@ int TFileSystem::ChMod(const char* path, mode_t mode, struct fuse_file_info* fi)
 
 int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset, struct fuse_file_info* fi) {
     try {
-        auto file = TFinder::FindFile(path);
+        auto file = TFindFile::FindFile(path);
         const auto fileRead = file->Read();
         memcpy(buffer, fileRead->Data.data() + offset, size);
         return static_cast<int>(fileRead->Data.size() - offset);
@@ -137,7 +136,7 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
     // TODO: INCORRECT IMPLEMENTATION? How to erase data from file???
     return -1;
 //    try {
-//        auto fileRes = TFinder::FindFile(path);
+//        auto fileRes = TFindFile::FindFile(path);
 //        auto fileWrite = fileRes->Write();
 //        fileWrite->Data.reserve(size);
 //        for(auto i = 0u; i < size; ++i) {

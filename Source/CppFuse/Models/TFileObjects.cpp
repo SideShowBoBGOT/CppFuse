@@ -1,5 +1,5 @@
-#include <CppFuse/Models/Objects/TFileObjects.hpp>
-#include <CppFuse/Models/Operations/TSetInfoParameter.hpp>
+#include "TFileObjects.hpp"
+#include "CppFuse/Controllers/TSetFileParameter.hpp"
 
 namespace cppfuse {
 
@@ -29,8 +29,8 @@ ASharedRwLock<TDirectory> TDirectory::New(const std::string& name, mode_t mode, 
     return DoNew<TDirectory>(name, mode, parent);
 }
 
-ASharedRwLock<TFile> TFile::New(const std::string& name, mode_t mode, const ASharedRwLock<cppfuse::TDirectory>& parent) {
-    return DoNew<TFile>(name, mode, parent);
+ASharedRwLock<TRegularFile> TRegularFile::New(const std::string& name, mode_t mode, const ASharedRwLock<cppfuse::TDirectory>& parent) {
+    return DoNew<TRegularFile>(name, mode, parent);
 }
 
 ASharedRwLock<TLink> TLink::New(const std::string& name, mode_t mode, const ASharedRwLock<cppfuse::TDirectory>& parent, const char* path) {

@@ -1,7 +1,7 @@
-#ifndef CPPFUSE_TINFO_HPP
-#define CPPFUSE_TINFO_HPP
+#ifndef CPPFUSE_TFILE_HPP
+#define CPPFUSE_TFILE_HPP
 
-#include <CppFuse/Helpers/ASharedLock.hpp>
+#include "CppFuse/Helpers/ASharedLock.hpp"
 
 namespace cppfuse {
 
@@ -19,7 +19,7 @@ class TGetInfoParent;
 
 // https://www.gnu.org/software/libc/manual/html_node/Attribute-Meanings.html
 template<typename ParentType>
-class TInfo {
+class TFile {
     friend class TSetInfoName;
     friend class TSetInfoMode;
     friend class TSetInfoUid;
@@ -33,7 +33,7 @@ class TInfo {
     friend class TGetInfoParent;
 
     public:
-    TInfo()=default;
+    TFile()=default;
 
     protected:
     std::string m_sName;
@@ -45,4 +45,4 @@ class TInfo {
 
 }
 
-#endif //CPPFUSE_TINFO_HPP
+#endif //CPPFUSE_TFILE_HPP
