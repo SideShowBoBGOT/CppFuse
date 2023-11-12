@@ -2,7 +2,7 @@
 #define CPPFUSE_TSETFILEPARAMETER_HPP
 
 #include "CppFuse/Models/TFileObjects.hpp"
-#include "TGetFileType.hpp"
+#include "NSFileType.hpp"
 
 namespace cppfuse {
 
@@ -65,7 +65,7 @@ class TSetInfoMode : public TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode> 
         : TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode>(param) {}
     using TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode>::operator();
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_uMode = m_xParam | TGetFileType{}(var);
+        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_uMode = m_xParam | NSFileType::Get(var);
     }
 };
 

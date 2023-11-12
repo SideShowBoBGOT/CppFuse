@@ -1,7 +1,7 @@
 #include "TReadDirectory.hpp"
 #include "TGetFileParameter.hpp"
 #include <CppFuse/Errors/TFSException.hpp>
-#include "TFindFile.hpp"
+#include "NSFindFile.hpp"
 
 namespace cppfuse {
 
@@ -9,7 +9,7 @@ TReadDirectory::TReadDirectory(const fs::path& path, void* buffer, fuse_fill_dir
     : m_pPath{path}, m_pBuffer{buffer}, m_xFiller{filler} {}
 
 void TReadDirectory::operator()() {
-    const auto res = TFindFile::Find(m_pPath);
+    const auto res = NSFindFile::Find(m_pPath);
     return std::visit([this](const auto& obj) { return DoReadDir(obj); }, res);
 }
 
@@ -23,7 +23,7 @@ void TReadDirectory::DoReadDir(const ASharedRwLock<TRegularFile>& var) {
 
 void TReadDirectory::DoReadDir(const ASharedRwLock<TLink>& var) {
     const auto varRead = var->Read();
-    const auto dir = TFindFile::FindDir(varRead->LinkTo);
+    const auto dir = NSFindFile::FindDir(varRead->LinkTo);
     FillerDirectory(dir);
 }
 

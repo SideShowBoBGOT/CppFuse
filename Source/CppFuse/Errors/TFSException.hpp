@@ -6,9 +6,9 @@
 #include <exception>
 #include <filesystem>
 
-namespace cppfuse {
-
 namespace fs = std::filesystem;
+
+namespace cppfuse {
 
 class TFSException : public std::exception {
     public:

@@ -5,13 +5,13 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_FLAGS -Wall)
 
 add_executable(${PROJECT_NAME} main.cpp
-        Source/CppFuse/Controllers/TGetFileAttributes.cpp
+        Source/CppFuse/Controllers/NSFileAttributes.cpp
         Source/CppFuse/Controllers/TReadDirectory.cpp
         Source/CppFuse/Controllers/TFileSystem.cpp
         Source/CppFuse/Errors/TFSException.cpp
-        Source/CppFuse/Controllers/TFindFile.cpp
+        Source/CppFuse/Controllers/NSFindFile.cpp
         Source/CppFuse/Models/TFileObjects.cpp
-        Source/CppFuse/Controllers/TDeleteFile.cpp)
+        Source/CppFuse/Controllers/NSDeleteFile.cpp)
 
 add_subdirectory(external)
 target_include_directories(${PROJECT_NAME} PRIVATE Source)
