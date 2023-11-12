@@ -7,8 +7,7 @@
 
 namespace cppfuse {
 
-static constexpr std::string_view s_sSelfName = ".";
-static constexpr std::string_view s_sParentName = "..";
+static constexpr std::string_view s_sRootPath = "/";
 
 template<typename T, auto FSExceptionValue>
 ASharedRwLock<T> FindGeneral(const fs::path& path) {
@@ -20,7 +19,12 @@ ASharedRwLock<T> FindGeneral(const fs::path& path) {
 }
 
 ASharedFileVariant TFindFile::Find(const fs::path& path) {
-    return RecursiveFindStepOne(path, path.begin(), TFileSystem::RootDir());
+    const auto& rootDir = TFileSystem::RootDir();
+    const auto normalizedPath = path.lexically_normal();
+    if(normalizedPath == s_sRootPath) {
+        return rootDir;
+    }
+    return RecursiveFind(normalizedPath, ++normalizedPath.begin(), rootDir->Read());
 }
 
 ASharedRwLock<TDirectory> TFindFile::FindDir(const fs::path& path) {
@@ -35,51 +39,26 @@ ASharedRwLock<TRegularFile> TFindFile::FindFile(const fs::path& path) {
     return FindGeneral<TRegularFile, NFSExceptionType::NotFile>(path);
 }
 
-ASharedFileVariant TFindFile::RecursiveFindStepOne(const fs::path& path,
-    fs::path::iterator it, const ASharedRwLock<TDirectory>& dir) {
+ASharedFileVariant TFindFile::RecursiveFind(const fs::path& path,
+    fs::path::iterator it, const rwl::TRwLockReadGuard<TDirectory>& dirRead) {
 
-    const auto dirRead = dir->Read();
-    const auto itName = std::string_view(it->c_str());
-    const auto ownName = std::string_view(TGetInfoName{}(dirRead));
-    if(itName == s_sSelfName or itName == ownName) {
-        return RecursiveFindStepTwo(path, it, dir);
-    }
-    if(itName == s_sParentName) {
-        if(const auto parent = TGetInfoParent{}(dirRead).lock()) {
-            return RecursiveFindStepTwo(path, it, parent);
-        }
-        throw TFSException(path.begin(), it, NFSExceptionType::FileNotExist);
-    }
-    const auto& fileObjects = dirRead->Objects;
-    const auto childIt = std::ranges::find_if(fileObjects,
+    const auto& itName = it->native();
+    const auto& files = dirRead->Files;
+    const auto childIt = std::ranges::find_if(files,
         [&itName](const auto& f) {
             return std::visit(TGetInfoName{}, f) == itName;
-        });
-    if(childIt == fileObjects.end()) {
+        }
+    );
+    if(childIt == files.end()) {
         throw TFSException(path.begin(), it, NFSExceptionType::FileNotExist);
     }
-    return RecursiveFindStepTwo(path, it, *childIt);
-}
-
-ASharedFileVariant TFindFile::RecursiveFindStepTwo(const fs::path& path,
-    fs::path::iterator it, const ASharedRwLock<TDirectory>& obj) {
-
     if(std::distance(it, path.end()) == 1) {
-        return obj;
+        return *childIt;
     }
-    return RecursiveFindStepOne(path, ++it, obj);
-}
-
-ASharedFileVariant TFindFile::RecursiveFindStepTwo(const fs::path& path,
-    fs::path::iterator it, const ASharedFileVariant& obj) {
-
-    if(std::distance(it, path.end()) == 1) {
-        return obj;
+    if(const auto dir = std::get_if<ASharedRwLock<TDirectory>>(&*childIt)) {
+        return RecursiveFind(path, ++it, (*dir)->Read());
     }
-    if(const auto dir = std::get_if<ASharedRwLock<TDirectory>>(&obj)) {
-        return RecursiveFindStepOne(path, ++it, *dir);
-    }
-   throw TFSException(path.begin(), it, NFSExceptionType::NotDirectory);
+    throw TFSException(path.begin(), it, NFSExceptionType::NotDirectory);
 }
 
 }

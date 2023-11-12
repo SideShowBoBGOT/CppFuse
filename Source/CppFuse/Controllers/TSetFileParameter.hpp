@@ -78,7 +78,7 @@ class TSetInfoParent : public TSetInfoParameterMixin<ASharedRwLock<TDirectory>> 
         auto varWrite = var->Write();
         reinterpret_cast<TSetInfoParent*>(this)->operator()(varWrite);
         if(m_xParam) {
-            m_xParam->Write()->Objects.push_back(var);
+            m_xParam->Write()->Files.push_back(var);
         }
     }
 

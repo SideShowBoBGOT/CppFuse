@@ -33,7 +33,7 @@ void TReadDirectory::FillerBuffer(const std::string_view& name) {
 
 void TReadDirectory::FillerDirectory(const ASharedRwLock<TDirectory>& dir) {
     const auto dirRead = dir->Read();
-    for(const auto& var : dirRead->Objects) {
+    for(const auto& var : dirRead->Files) {
         const auto name = TGetInfoName{}(var);
         FillerBuffer(name);
     }

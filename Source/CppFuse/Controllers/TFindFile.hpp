@@ -13,15 +13,8 @@ class TFindFile {
     static ASharedRwLock<TRegularFile> FindFile(const fs::path& path);
 
     protected:
-    static ASharedFileVariant RecursiveFindStepOne(const fs::path& path,
-        fs::path::iterator it, const ASharedRwLock<TDirectory>& dir);
-
-    static ASharedFileVariant RecursiveFindStepTwo(const fs::path& path,
-        fs::path::iterator it, const ASharedRwLock<TDirectory>& obj);
-
-    static ASharedFileVariant RecursiveFindStepTwo(const fs::path& path,
-        fs::path::iterator it, const ASharedFileVariant & obj);
-
+    static ASharedFileVariant RecursiveFind(const fs::path& path,
+        fs::path::iterator it, const rwl::TRwLockReadGuard<TDirectory>& dirRead);
 };
 
 }

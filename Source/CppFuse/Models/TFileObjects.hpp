@@ -46,7 +46,7 @@ class TDirectory : public TFile<TDirectory> {
     static ASharedRwLock<TDirectory> New(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent);
 
     public:
-    std::vector<ASharedFileVariant> Objects;
+    std::vector<ASharedFileVariant> Files;
     static constexpr NFileType FileType = NFileType::Directory;
 };
 
