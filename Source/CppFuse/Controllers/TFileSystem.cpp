@@ -105,18 +105,17 @@ int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset,
 
 int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t offset, struct fuse_file_info* info) {
     // TODO: INCORRECT IMPLEMENTATION? How to erase data from file???
-    return -1;
-//    try {
-//        auto fileRes = TFindFile::FindFile(path);
-//        auto fileWrite = fileRes->Write();
-//        fileWrite->Data.reserve(size);
-//        for(auto i = 0u; i < size; ++i) {
-//            fileWrite->Data.emplace_back(buffer[i]);
-//        }
-//        return static_cast<int>(size);
-//    } catch (const TFSException& ex) {
-//        return ex.Type();
-//    }
+    try {
+        auto fileRes = TFindFile::FindFile(path);
+        auto fileWrite = fileRes->Write();
+        fileWrite->Data.reserve(size);
+        for(auto i = 0u; i < size; ++i) {
+            fileWrite->Data.emplace_back(buffer[i]);
+        }
+        return static_cast<int>(size);
+    } catch (const TFSException& ex) {
+        return ex.Type();
+    }
 }
 
 int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler, off_t offset,
