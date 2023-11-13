@@ -109,6 +109,16 @@ int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset,
 
 int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t offset, struct fuse_file_info* info) {
     // TODO: INCORRECT IMPLEMENTATION? How to erase data from file???
+    std::cout << "----------------------------" << std::endl;
+    if(info->flags & O_CREAT) {
+        std::cout<<"O_CREAT\n";
+    }
+    if(info->flags & O_EXCL) {
+        std::cout<<"O_EXCL\n";
+    }
+    if(info->flags & O_NOCTTY) {
+        std::cout<<"O_NOCTTY\n";
+    }
     if(info->flags & O_APPEND) {
         std::cout<<"O_APPEND\n";
     }
@@ -124,6 +134,7 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
 
     try {
         std::cout << "OFFSET: " << offset << "\n";
+        std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
         auto file = NSFindFile::FindRegularFile(path);
         auto fileWrite = file->Write();
         auto& data = fileWrite->Data;
