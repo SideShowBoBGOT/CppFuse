@@ -22,7 +22,8 @@ int main(int argc, char *argv[]) {
         auto file = cppfuse::TRegularFile::New("text.txt", 0755, cppfuse::TFileSystem::RootDir());
         auto fileWrite = file->Write();
 
-        for(int i = 0; i < 100; ++i) {
+        fileWrite->Data.reserve(1000000);
+        for(int i = 0; i < 1000000; ++i) {
             fileWrite->Data.push_back(45);
         }
 
