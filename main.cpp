@@ -1,4 +1,6 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
+#include <iostream>
+#include <thread>
 
 fuse_operations FileSystemOperations = {
     .getattr = cppfuse::TFileSystem::GetAttr,
@@ -15,5 +17,18 @@ fuse_operations FileSystemOperations = {
 };
 
 int main(int argc, char *argv[]) {
+    std::jthread([]() {
+        auto start = std::chrono::system_clock::now();
+        auto file = cppfuse::TRegularFile::New("text.txt", 0755, cppfuse::TFileSystem::RootDir());
+        auto fileWrite = file->Write();
+
+        for(int i = 0; i < 100; ++i) {
+            fileWrite->Data.push_back(45);
+        }
+
+        auto duration = std::chrono::system_clock::now() - start;
+        auto millisecs = duration_cast<std::chrono::milliseconds>(duration).count();
+        std::cout << millisecs << std::endl;
+    });
     return fuse_main(argc, argv, &FileSystemOperations, nullptr);
 }

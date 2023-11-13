@@ -7,6 +7,10 @@ static void Update(rwl::TRwLockWriteGuard<TLink>& writeObj, const fs::path& path
     writeObj->LinkTo = path;
 }
 
+static void Update(rwl::TRwLockWriteGuard<TRegularFile>& writeObj, const fs::path& path) {
+    //writeObj->Data.resize(1000000);
+}
+
 template<typename T, typename... Args>
 static ASharedRwLock<T> DoNew(const std::string& name, mode_t mode, const ASharedRwLock<TDirectory>& parent, Args&& ... args) {
     const auto obj = MakeSharedRwLock<T>();
@@ -17,8 +21,10 @@ static ASharedRwLock<T> DoNew(const std::string& name, mode_t mode, const AShare
         TSetInfoUid{getuid()}(objWrite);
         TSetInfoGid{getgid()}(objWrite);
 
-        if constexpr(std::is_same_v<T, TLink>) {
+        if constexpr(std::same_as<T, TLink>) {
             Update(objWrite, args...);
+        } else if constexpr(std::same_as<T, TRegularFile>) {
+
         }
     }
     TSetInfoParent{parent}(obj);
