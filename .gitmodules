@@ -1,0 +1,9 @@
+[submodule "External/googletest"]
+	path = External/googletest
+	url = https://github.com/google/googletest
+[submodule "External/magic_enum"]
+	path = External/magic_enum
+	url = https://github.com/Neargye/magic_enum
+[submodule "External/RwLock"]
+	path = External/RwLock
+	url = https://github.com/SideShowBoBGOT/RwLock
