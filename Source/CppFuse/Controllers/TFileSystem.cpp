@@ -112,7 +112,6 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
         auto& data = fileWrite->Data;
         const auto src = std::span(buffer, size);
         if(info->flags & O_WRONLY) {
-            std::cout << size << std::endl;
             const auto replaceSize = data.end() - (data.begin() + offset);
             if(replaceSize < size) {
                 data.resize(data.size() + size - replaceSize);
