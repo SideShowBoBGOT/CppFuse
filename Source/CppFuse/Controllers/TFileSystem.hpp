@@ -12,6 +12,9 @@ namespace cppfuse {
 
 class TFileSystem {
     public:
+    static int Init(int argc, char *argv[]);
+
+    protected:
     static int GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi);
     static int ReadLink(const char* path, char* buffer, size_t size);
     static int MkNod(const char* path, mode_t mode, dev_t rdev);

@@ -13,6 +13,24 @@ namespace cppfuse {
 
 static constexpr std::string_view s_sRootPath = "/";
 
+int TFileSystem::Init(int argc, char *argv[]) {
+    fuse_operations FileSystemOperations = {
+        .getattr = cppfuse::TFileSystem::GetAttr,
+        .readlink = cppfuse::TFileSystem::ReadLink,
+        .mknod = cppfuse::TFileSystem::MkNod,
+        .mkdir = cppfuse::TFileSystem::MkDir,
+        .unlink = cppfuse::TFileSystem::Unlink,
+        .rmdir = cppfuse::TFileSystem::RmDir,
+        .symlink = cppfuse::TFileSystem::SymLink,
+        .chmod = cppfuse::TFileSystem::ChMod,
+        .read = cppfuse::TFileSystem::Read,
+        .write = cppfuse::TFileSystem::Write,
+        .readdir = cppfuse::TFileSystem::ReadDir,
+    };
+
+    return fuse_main(argc, argv, &FileSystemOperations, nullptr);
+}
+
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
     try {
         const auto result = NSFindFile::Find(path);
@@ -112,7 +130,7 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
         auto& data = fileWrite->Data;
         const auto src = std::span(buffer, size);
         if(info->flags & O_WRONLY) {
-            const auto replaceSize = data.end() - (data.begin() + offset);
+            const auto replaceSize = static_cast<size_t>(data.end() - (data.begin() + offset));
             if(replaceSize < size) {
                 data.resize(data.size() + size - replaceSize);
             }
