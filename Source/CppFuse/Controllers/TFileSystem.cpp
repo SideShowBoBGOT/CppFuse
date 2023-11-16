@@ -27,7 +27,6 @@ int TFileSystem::Init(int argc, char *argv[]) {
         .write = cppfuse::TFileSystem::Write,
         .readdir = cppfuse::TFileSystem::ReadDir,
     };
-
     return fuse_main(argc, argv, &FileSystemOperations, nullptr);
 }
 
