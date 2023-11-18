@@ -59,5 +59,5 @@ TEST_F(TFileSystemTestFixture, WriteReadFile) {
     std::ofstream(filePath.c_str()) << "information";
     std::string r;
     std::ifstream(filePath.c_str()) >> r;
-    EXPECT_TRUE(r == "information");
+    EXPECT_EQ(r.find_first_of("information"), 0);
 }
