@@ -43,7 +43,9 @@ int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_inf
 int TFileSystem::ReadLink(const char* path, char* buffer, size_t size) {
     try {
         const auto link = NSFindFile::FindLink(path);
-        std::memcpy(buffer, link->Read()->LinkTo.c_str(), size);
+        const auto linkRead = link->Read();
+        const auto pathView = std::string_view(linkRead->LinkTo.c_str());
+        std::memcpy(buffer, pathView.data(), pathView.size());
         return 0;
     } catch(const TFSException& ex) {
         return ex.Type();

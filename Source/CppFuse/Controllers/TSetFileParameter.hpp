@@ -75,10 +75,13 @@ class TSetInfoParent : public TSetInfoParameterMixin<ASharedRwLock<TDirectory>> 
         : TSetInfoParameterMixin<ASharedRwLock<TDirectory>>(param) {}
     using TSetInfoParameterMixin<ASharedRwLock<TDirectory>>::operator();
     void operator()(const CSharedRwFileObject auto& var) {
-        auto varWrite = var->Write();
-        reinterpret_cast<TSetInfoParent*>(this)->operator()(varWrite);
+        {
+            auto varWrite = var->Write();
+            this->operator()(varWrite);
+        }
         if(m_xParam) {
-            m_xParam->Write()->Files.push_back(var);
+            auto writeParam = m_xParam->Write();
+            writeParam->Files.push_back(var);
         }
     }
 
