@@ -117,8 +117,11 @@ int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset,
     try {
         auto file = NSFindFile::FindRegularFile(path);
         const auto fileRead = file->Read();
-        memcpy(buffer, fileRead->Data.data() + offset, size);
-        return static_cast<int>(fileRead->Data.size() - offset);
+        const auto& data = fileRead->Data;
+        const auto offsetSize = static_cast<size_t>(data.end() - (data.begin() + offset));
+        const auto readSize = std::min(offsetSize, size);
+        std::memcpy(buffer, fileRead->Data.data() + offset, readSize);
+        return static_cast<int>(readSize);
     } catch (const TFSException& ex) {
         return ex.Type();
     }

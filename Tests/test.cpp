@@ -34,8 +34,6 @@ class TFileSystemTestFixture : public ::testing::Test {
 
 std::unique_ptr<std::jthread> TFileSystemTestFixture::s_pChildThread = nullptr;
 
-
-
 TEST_F(TFileSystemTestFixture, CreateRegularFile) {
     const auto filePath = s_xMountPath / fs::path("text.txt");
     std::ofstream(filePath.c_str());
@@ -47,11 +45,19 @@ TEST_F(TFileSystemTestFixture, CreateLink) {
     std::ofstream(filePath.c_str());
     const auto linkPath = s_xMountPath / fs::path("link");
     fs::create_symlink(filePath, linkPath);
-    //EXPECT_TRUE(fs::is_symlink(linkPath));
+    EXPECT_TRUE(fs::is_symlink(linkPath));
 }
 
 TEST_F(TFileSystemTestFixture, CreateDirectory) {
     const auto filePath = s_xMountPath / fs::path("dir");
     fs::create_directory(filePath);
     EXPECT_TRUE(fs::is_directory(filePath));
+}
+
+TEST_F(TFileSystemTestFixture, WriteReadFile) {
+    const auto filePath = s_xMountPath / fs::path("writeText.txt");
+    std::ofstream(filePath.c_str()) << "information";
+    std::string r;
+    std::ifstream(filePath.c_str()) >> r;
+    EXPECT_TRUE(r == "information");
 }
