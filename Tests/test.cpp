@@ -58,7 +58,19 @@ TEST_F(TFileSystemTestFixture, Directory) {
     EXPECT_TRUE(fs::is_directory(dirPath));
     const auto filePath = dirPath / fs::path("indirFile");
     std::ofstream(filePath.c_str());
-    const auto fileIt = fs::directory_iterator(dirPath);
-    EXPECT_TRUE(fileIt->is_regular_file());
-    EXPECT_EQ(fileIt->path().filename(), "indirFile");
+
+    {
+        SCOPED_TRACE("CheckFileInsideDirectory");
+        const auto fileIt = fs::directory_iterator(dirPath);
+        EXPECT_TRUE(fileIt->is_regular_file());
+        EXPECT_EQ(fileIt->path().filename(), "indirFile");
+        EXPECT_NE(fileIt, end(fileIt));
+    }
+
+    {
+        SCOPED_TRACE("CheckDeleteFileInsideDirectory");
+        fs::remove(filePath);
+        const auto fileIt = fs::directory_iterator(dirPath);
+        EXPECT_EQ(fileIt, end(fileIt));
+    }
 }

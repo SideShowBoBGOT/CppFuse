@@ -7,3 +7,6 @@
 [submodule "External/RwLock"]
 	path = External/RwLock
 	url = https://github.com/SideShowBoBGOT/RwLock
+[submodule "External/CLI11"]
+	path = External/CLI11
+	url = https://github.com/CLIUtils/CLI11
