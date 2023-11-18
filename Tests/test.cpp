@@ -34,30 +34,31 @@ class TFileSystemTestFixture : public ::testing::Test {
 
 std::unique_ptr<std::jthread> TFileSystemTestFixture::s_pChildThread = nullptr;
 
-TEST_F(TFileSystemTestFixture, CreateRegularFile) {
+TEST_F(TFileSystemTestFixture, RegularFile) {
     const auto filePath = s_xMountPath / fs::path("text.txt");
-    std::ofstream(filePath.c_str());
+    std::ofstream(filePath.c_str()) << "information";
     EXPECT_TRUE(fs::is_regular_file(filePath));
+    std::string r;
+    std::ifstream(filePath.c_str()) >> r;
+    EXPECT_EQ(r.find_first_of("information"), 0);
 }
 
-TEST_F(TFileSystemTestFixture, CreateLink) {
+TEST_F(TFileSystemTestFixture, Link) {
     const auto filePath = s_xMountPath / fs::path("linked");
     std::ofstream(filePath.c_str());
     const auto linkPath = s_xMountPath / fs::path("link");
     fs::create_symlink(filePath, linkPath);
     EXPECT_TRUE(fs::is_symlink(linkPath));
+    EXPECT_EQ(filePath, fs::read_symlink(linkPath));
 }
 
-TEST_F(TFileSystemTestFixture, CreateDirectory) {
-    const auto filePath = s_xMountPath / fs::path("dir");
-    fs::create_directory(filePath);
-    EXPECT_TRUE(fs::is_directory(filePath));
-}
-
-TEST_F(TFileSystemTestFixture, WriteReadFile) {
-    const auto filePath = s_xMountPath / fs::path("writeText.txt");
-    std::ofstream(filePath.c_str()) << "information";
-    std::string r;
-    std::ifstream(filePath.c_str()) >> r;
-    EXPECT_EQ(r.find_first_of("information"), 0);
+TEST_F(TFileSystemTestFixture, Directory) {
+    const auto dirPath = s_xMountPath / fs::path("dir");
+    fs::create_directory(dirPath);
+    EXPECT_TRUE(fs::is_directory(dirPath));
+    const auto filePath = dirPath / fs::path("indirFile");
+    std::ofstream(filePath.c_str());
+    const auto fileIt = fs::directory_iterator(dirPath);
+    EXPECT_TRUE(fileIt->is_regular_file());
+    EXPECT_EQ(fileIt->path().filename(), "indirFile");
 }
