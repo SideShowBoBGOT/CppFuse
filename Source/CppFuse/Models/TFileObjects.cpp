@@ -8,7 +8,7 @@ static void Update(rwl::TRwLockWriteGuard<TLink>& writeObj, const fs::path& path
 }
 
 static void Update(rwl::TRwLockWriteGuard<TRegularFile>& writeObj) {
-    writeObj->Data.resize(100000);
+    writeObj->Data.resize(TRegularFile::ReservedSpace);
 }
 
 template<typename T, typename... Args>
@@ -38,6 +38,8 @@ ASharedRwLock<TDirectory> TDirectory::New(const std::string& name, mode_t mode, 
 ASharedRwLock<TRegularFile> TRegularFile::New(const std::string& name, mode_t mode, const ASharedRwLock<cppfuse::TDirectory>& parent) {
     return DoNew<TRegularFile>(name, mode, parent);
 }
+
+unsigned TRegularFile::ReservedSpace = 0;
 
 ASharedRwLock<TLink> TLink::New(const std::string& name, mode_t mode, const ASharedRwLock<cppfuse::TDirectory>& parent, const fs::path& path) {
     return DoNew<TLink>(name, mode, parent, path);

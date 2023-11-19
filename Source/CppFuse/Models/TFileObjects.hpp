@@ -58,6 +58,7 @@ class TRegularFile : public TFile<TDirectory> {
     public:
     std::vector<char> Data;
     static constexpr NFileType FileType = NFileType::File;
+    static unsigned ReservedSpace;
 };
 
 namespace fs = std::filesystem;

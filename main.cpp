@@ -1,5 +1,7 @@
-#include <CppFuse/Controllers/TFileSystem.hpp>
+#include <CppFuse/Views/TFileSystemCLI.hpp>
 
 int main(int argc, char *argv[]) {
-    return cppfuse::TFileSystem::Init(argc, argv);
+    auto cli = cppfuse::TFileSystemCLI("CppFuse");
+    CLI11_PARSE(cli);
+    return 0;
 }

@@ -15,11 +15,13 @@ add_library(${PROJECT_NAME} STATIC
         Source/${PROJECT_NAME}/Errors/TFSException.cpp
         Source/${PROJECT_NAME}/Controllers/NSFindFile.cpp
         Source/${PROJECT_NAME}/Models/TFileObjects.cpp
-        Source/${PROJECT_NAME}/Controllers/NSDeleteFile.cpp)
+        Source/${PROJECT_NAME}/Controllers/NSDeleteFile.cpp
+        Source/${PROJECT_NAME}/Views/TFileSystemCLI.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC Source)
 target_link_libraries(${PROJECT_NAME} PUBLIC RwLock::RwLock)
 target_link_libraries(${PROJECT_NAME} PUBLIC magic_enum::magic_enum)
+target_include_directories(${PROJECT_NAME} PUBLIC External/CLI11/include)
 
 include(FindPkgConfig)
 pkg_search_module(FUSE3 REQUIRED fuse3)

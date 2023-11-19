@@ -1,0 +1,32 @@
+#include <CppFuse/Views/TFileSystemCLI.hpp>
+#include <CppFuse/Controllers/TFileSystem.hpp>
+
+namespace cppfuse {
+
+TFileSystemCLI::TFileSystemCLI(const std::string& name) : CLI::App(name) {
+    add_option<unsigned , unsigned>(
+        "--reserved-space,--r",
+        TRegularFile::ReservedSpace,
+        "Reserved space in bytes for a single file"
+    )->default_val(5000);
+    const auto fg = add_flag("--foreground-process,-f", "Keep as foreground process");
+    add_flag("--no-threads,-n", "Disable multiple threads support");
+    add_flag("--debug,-d", "Show debug messages")->needs(fg);
+    add_option("--mount-point,-m", "Mount point")->required(true);
+    parse_complete_callback([this]() {
+        std::vector<const char*> args = {fs::current_path().c_str()};
+        if(get_option("--foreground-process")->as<bool>()) {
+            args.push_back("-f");
+        }
+        if(get_option("--debug")->as<bool>()) {
+            args.push_back("-d");
+        }
+        if(get_option("--no-threads")->as<bool>()) {
+            args.push_back("-s");
+        }
+        args.push_back(get_option("--mount-point")->as<fs::path>().c_str());
+        cppfuse::TFileSystem::Init(static_cast<int>(args.size()), const_cast<char**>(args.data()));
+    });
+}
+
+}
