@@ -10,7 +10,6 @@ using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 static const fs::path s_xMountPath = "/mnt/fuse";
-static const fs::path s_xExecutablePath = "";
 
 class TFileSystemTestFixture : public ::testing::Test {
     protected:

@@ -10,3 +10,6 @@
 [submodule "External/CLI11"]
 	path = External/CLI11
 	url = https://github.com/CLIUtils/CLI11
+[submodule "External/matplotplusplus"]
+	path = External/matplotplusplus
+	url = https://github.com/alandefreitas/matplotplusplus
