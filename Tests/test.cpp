@@ -1,4 +1,4 @@
-#include <CppFuse/Controllers/TFileSystem.hpp>
+#include <CppFuse/Views/TFileSystemCLI.hpp>
 #include <gtest/gtest.h>
 
 #include <fstream>
@@ -18,8 +18,9 @@ class TFileSystemTestFixture : public ::testing::Test {
         s_pChildThread = std::make_unique<std::jthread>([]() {
             std::system((std::string("mount -t ") + s_xMountPath.c_str()).c_str());
             std::system((std::string("fusermount -u ") + s_xMountPath.c_str()).c_str());
-            std::vector<const char*> args = { fs::current_path().c_str(), "-f", s_xMountPath.c_str() };
-            cppfuse::TFileSystem::Init(static_cast<int>(args.size()), const_cast<char**>(args.data()));
+            std::vector<const char*> args = { fs::current_path().c_str(), "-f", "-m", s_xMountPath.c_str() };
+            auto cli = cppfuse::TFileSystemCLI("CppFuse");
+            CLI11_PARSE(cli, args.size(), const_cast<char**>(args.data()));
         });
         std::this_thread::sleep_for(300ms);
     }

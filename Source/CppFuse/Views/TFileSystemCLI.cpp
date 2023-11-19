@@ -12,7 +12,8 @@ TFileSystemCLI::TFileSystemCLI(const std::string& name) : CLI::App(name) {
     const auto fg = add_flag("--foreground-process,-f", "Keep as foreground process");
     add_flag("--no-threads,-n", "Disable multiple threads support");
     add_flag("--debug,-d", "Show debug messages")->needs(fg);
-    add_option("--mount-point,-m", "Mount point")->required(true);
+    add_option("--mount-point,-m", "Mount point")
+        ->required(true)->check(CLI::ExistingDirectory);
     parse_complete_callback([this]() {
         std::vector<const char*> args = {fs::current_path().c_str()};
         if(get_option("--foreground-process")->as<bool>()) {
