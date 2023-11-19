@@ -20,6 +20,7 @@ class TFileSystemTestFixture : public ::testing::Test {
             std::vector<const char*> args = { fs::current_path().c_str(), "-f", "-m", s_xMountPath.c_str() };
             auto cli = cppfuse::TFileSystemCLI("CppFuse");
             CLI11_PARSE(cli, args.size(), const_cast<char**>(args.data()));
+            return 0;
         });
         std::this_thread::sleep_for(300ms);
     }
