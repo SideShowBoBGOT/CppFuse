@@ -33,8 +33,6 @@ ASharedRwLock<TRegularFile> TRegularFile::New(const std::string& name, mode_t mo
     return DoNew<TRegularFile>(name, mode, parent);
 }
 
-unsigned TRegularFile::ReservedSpace = 0;
-
 ASharedRwLock<TLink> TLink::New(const std::string& name, mode_t mode, const ASharedRwLock<cppfuse::TDirectory>& parent, const fs::path& path) {
     return DoNew<TLink>(name, mode, parent, path);
 }
