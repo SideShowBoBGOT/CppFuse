@@ -14,11 +14,15 @@ const char* TFSException::what() const noexcept { return m_sMessage.c_str(); }
 NFSExceptionType TFSException::Type() const { return m_xType; }
 
 TFSException::TFSException(const fs::path& path, NFSExceptionType type) {
+    UpdateMessage(path.c_str(), type);
+}
+
+TFSException::TFSException(const std::string_view& path, NFSExceptionType type) {
     UpdateMessage(path, type);
 }
 
-void TFSException::UpdateMessage(const fs::path& path, NFSExceptionType type) {
-    m_sMessage = static_cast<std::string>(magic_enum::enum_name(type)) + ": " + path.c_str();
+void TFSException::UpdateMessage(const std::string_view& path, NFSExceptionType type) {
+    m_sMessage = static_cast<std::string>(magic_enum::enum_name(type)) + ": " + path.data();
 }
 
 }

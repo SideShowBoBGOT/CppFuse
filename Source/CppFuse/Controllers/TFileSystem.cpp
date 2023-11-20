@@ -54,9 +54,10 @@ int TFileSystem::ReadLink(const char* path, char* buffer, size_t size) {
 
 int TFileSystem::MkNod(const char* path, mode_t mode, dev_t rdev) {
     try {
-        const auto newDirPath = std::filesystem::path(path);
-        auto parentDir = NSFindFile::FindDir(newDirPath.parent_path());
-        TRegularFile::New(newDirPath.filename(), mode, parentDir);
+        const auto newPath = std::filesystem::path(path);
+        auto parentDir = NSFindFile::FindDir(newPath.parent_path());
+        TRegularFile::New(newPath.filename(), mode, parentDir);
+        NSFindFile::AddToNameHash(newPath);
         return 0;
     } catch(const TFSException& ex) {
         return ex.Type();
@@ -65,9 +66,10 @@ int TFileSystem::MkNod(const char* path, mode_t mode, dev_t rdev) {
 
 int TFileSystem::MkDir(const char* path, mode_t mode) {
     try {
-        const auto newDirPath = std::filesystem::path(path);
-        auto parentDir = NSFindFile::FindDir(newDirPath.parent_path());
-        TDirectory::New(newDirPath.filename(), mode, parentDir);
+        const auto newPath = std::filesystem::path(path);
+        auto parentDir = NSFindFile::FindDir(newPath.parent_path());
+        TDirectory::New(newPath.filename(), mode, parentDir);
+        NSFindFile::AddToNameHash(newPath);
         return 0;
     } catch(const TFSException& ex) {
         return ex.Type();
@@ -93,10 +95,11 @@ int TFileSystem::RmDir(const char* path) {
 }
 
 int TFileSystem::SymLink(const char* target_path, const char* link_path) {
-    const auto linkPath = std::filesystem::path(link_path);
     try {
-        const auto parentDir = NSFindFile::FindDir(linkPath.parent_path());
-        TLink::New(linkPath.filename(), static_cast<mode_t>(0775), parentDir, target_path);
+        const auto newPath = std::filesystem::path(link_path);
+        const auto parentDir = NSFindFile::FindDir(newPath.parent_path());
+        TLink::New(newPath.filename(), static_cast<mode_t>(0775), parentDir, target_path);
+        NSFindFile::AddToNameHash(newPath);
         return 0;
     } catch (const TFSException& ex) {
         return ex.Type();

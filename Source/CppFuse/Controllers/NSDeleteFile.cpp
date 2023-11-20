@@ -6,14 +6,24 @@
 
 namespace cppfuse::NSDeleteFile {
 
-void DeleteDir(const ASharedRwLock<TDirectory>& dir) {
+void DeleteChildrenInDirectory(const ASharedRwLock<TDirectory>& dir, const fs::path& dirPath);
+
+static void DeleteWithIterator( std::vector<ASharedFileVariant>& parentFiles,
+                                std::vector<ASharedFileVariant>::iterator it, const fs::path& itPath) {
+
+    if(const auto childDirPtr = std::get_if<ASharedRwLock<TDirectory>>(&*it)) {
+        DeleteChildrenInDirectory(*childDirPtr, itPath);
+    }
+    NSFindFile::RemoveFromNameHash(itPath);
+    parentFiles.erase(it);
+}
+
+void DeleteChildrenInDirectory(const ASharedRwLock<TDirectory>& dir, const fs::path& dirPath) {
     auto dirWrite = dir->Write();
     auto& files = dirWrite->Files;
     for(auto i = unsigned(0); i < files.size(); ++i) {
-        if(const auto childDirPtr = std::get_if<ASharedRwLock<TDirectory>>(&files[i])) {
-            DeleteDir(*childDirPtr);
-        }
-        files.erase(files.begin() + i);
+        const auto it = files.begin() + i;
+        DeleteWithIterator(files, it, dirPath / TGetInfoName{}(*it));
         --i;
     }
 }
@@ -22,19 +32,16 @@ void Delete(const fs::path& path) {
     const auto fileName = path.filename();
     const auto parentDir = NSFindFile::FindDir(path.parent_path());
     auto parentDirWrite = parentDir->Write();
-    auto& files = parentDirWrite->Files;
-    const auto it = std::find_if(files.begin(), files.end(),
+    auto& parentFiles = parentDirWrite->Files;
+    const auto it = std::find_if(parentFiles.begin(), parentFiles.end(),
         [&fileName](const auto& f) {
             return TGetInfoName{}(f) == fileName;
         }
     );
-    if(it == files.end()) {
+    if(it == parentFiles.end()) {
         throw TFSException(path, NFSExceptionType::FileNotExist);
     }
-    if(const auto childDirPtr = std::get_if<ASharedRwLock<TDirectory>>(&*it)) {
-        DeleteDir(*childDirPtr);
-    }
-    files.erase(it);
+    DeleteWithIterator(parentFiles, it, path);
 }
 
 }
