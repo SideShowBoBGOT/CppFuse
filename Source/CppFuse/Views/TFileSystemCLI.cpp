@@ -4,11 +4,6 @@
 namespace cppfuse {
 
 TFileSystemCLI::TFileSystemCLI(const std::string& name) : CLI::App(name) {
-    add_option<unsigned , unsigned>(
-        "--reserved-space,-r",
-        TRegularFile::ReservedSpace,
-        "Reserved space in bytes for a single file"
-    )->default_val(20000);
     const auto fg = add_flag("--foreground-process,-f", "Keep as foreground process");
     add_flag("--no-threads,-n", "Disable multiple threads support");
     add_flag("--debug,-d", "Show debug messages")->needs(fg);
