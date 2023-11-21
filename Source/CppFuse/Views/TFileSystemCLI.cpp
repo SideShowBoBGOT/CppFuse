@@ -9,6 +9,8 @@ TFileSystemCLI::TFileSystemCLI(const std::string& name) : CLI::App(name) {
     add_flag("--debug,-d", "Show debug messages")->needs(fg);
     add_option("--mount-point,-m", "Mount point")
         ->required(true)->check(CLI::ExistingDirectory);
+    add_option("--pipe-point,-p", TFileSystem::FifoPath, "Pipe point")
+        ->required(true)->check(CLI::ExistingFile);
     parse_complete_callback([this]() {
         std::vector<const char*> args = {fs::current_path().c_str()};
         if(get_option("--foreground-process")->as<bool>()) {

@@ -10,6 +10,8 @@ using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 static const fs::path s_xMountPath = "/mnt/fuse";
+static const fs::path s_xPipePath = "/mnt/fuse_pipe";
+
 
 class TFileSystemTestFixture : public ::testing::Test {
     protected:
@@ -17,7 +19,7 @@ class TFileSystemTestFixture : public ::testing::Test {
         s_pChildThread = std::make_unique<std::jthread>([]() {
             std::system((std::string("mount -t ") + s_xMountPath.c_str()).c_str());
             std::system((std::string("fusermount -u ") + s_xMountPath.c_str()).c_str());
-            std::vector<const char*> args = { fs::current_path().c_str(), "-f", "-m", s_xMountPath.c_str() };
+            std::vector<const char*> args = { fs::current_path().c_str(), "-f", "-m", s_xMountPath.c_str(), "-p", s_xPipePath.c_str() };
             auto cli = cppfuse::TFileSystemCLI("CppFuse");
             CLI11_PARSE(cli, args.size(), const_cast<char**>(args.data()));
             return 0;

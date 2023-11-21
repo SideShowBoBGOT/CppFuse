@@ -1,8 +1,8 @@
 #include <CppFuse/Controllers/NSFindFile.hpp>
 #include <CppFuse/Controllers/TFileSystem.hpp>
 #include <CppFuse/Errors/TFSException.hpp>
-#include "TGetFileParameter.hpp"
-#include <algorithm>
+#include <CppFuse/Controllers/TGetFileParameter.hpp>
+
 #include <array>
 #include <map>
 

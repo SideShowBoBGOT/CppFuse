@@ -33,5 +33,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${FUSE3_LIBRARIES})
 add_executable(MainExecutable main.cpp)
 target_link_libraries(MainExecutable PRIVATE ${PROJECT_NAME})
 
+add_executable(FindByName FindByName.cpp)
+target_include_directories(FindByName PRIVATE External/CLI11/include)
+
 add_subdirectory(Tests)
 
