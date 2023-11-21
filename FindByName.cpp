@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
         {
             auto fOut = std::ofstream(pipePath);
             if(!fOut.is_open()) {
-                throw std::invalid_argument("Can not open the pipe");
+                throw std::invalid_argument("Can not open the pipe for writing");
             }
             fOut << fileName;
         }
@@ -20,11 +20,11 @@ int main(int argc, char *argv[]) {
             auto buffer = std::array<char, 10000>();
             auto fIn = std::ifstream(pipePath);
             if(!fIn.is_open()) {
-                throw std::invalid_argument("Can not open the pipe");
+                throw std::invalid_argument("Can not open the pipe for reading");
             }
             fIn.read(buffer.data(), buffer.size());
             auto str = std::string_view(buffer.data());
-            std::cout << str << "\n";
+            std::cout << str;
         }
     });
     CLI11_PARSE(cli, argc, argv);

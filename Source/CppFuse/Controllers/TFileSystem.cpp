@@ -36,8 +36,7 @@ int TFileSystem::Init(int argc, char *argv[]) {
         .readdir = cppfuse::TFileSystem::ReadDir,
     };
     auto fifoCommunicationThread = std::jthread(TFileSystem::FindByNameThread);
-    //return fuse_main(argc, argv, &FileSystemOperations, nullptr);
-    return 0;
+    return fuse_main(argc, argv, &FileSystemOperations, nullptr);
 }
 
 int TFileSystem::GetAttr(const char* path, struct stat* st, struct fuse_file_info* fi) {
@@ -178,18 +177,26 @@ void TFileSystem::FindByNameThread() {
     while(true) {
         {
             auto fIn = std::ifstream(FifoPath);
+            if(!fIn.is_open()) {
+                continue;
+            }
             fIn.read(buffer.data(), buffer.size());
         }
         const auto path = std::string(buffer.data());
         try {
             const auto& paths = NSFindFile::FindByName(path);
             auto fOut = std::ofstream(FifoPath);
+            if(!fOut.is_open()) {
+                continue;
+            }
             for(const auto& p : paths) {
                 fOut << p << "\n";
             }
         } catch(const TFSException& ex) {
             auto fOut = std::ofstream(FifoPath);
-            fOut << s_sNoFilesWithSuchName;
+            if(fOut.is_open()) {
+                fOut << s_sNoFilesWithSuchName;
+            }
         }
     }
 }
