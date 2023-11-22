@@ -7,7 +7,7 @@ namespace cppfuse {
 
 class TFileSystemCLI : public CLI::App {
     public:
-    TFileSystemCLI(const std::string& name);
+    TFileSystemCLI();
 };
 
 }

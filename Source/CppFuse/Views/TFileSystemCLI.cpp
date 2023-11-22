@@ -3,7 +3,7 @@
 
 namespace cppfuse {
 
-TFileSystemCLI::TFileSystemCLI(const std::string& name) : CLI::App(name) {
+TFileSystemCLI::TFileSystemCLI() : CLI::App("CppFuse") {
     const auto fg = add_flag("--foreground-process,-f", "Keep as foreground process");
     add_flag("--no-threads,-n", "Disable multiple threads support");
     add_flag("--debug,-d", "Show debug messages")->needs(fg);

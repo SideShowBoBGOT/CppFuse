@@ -1,4 +1,5 @@
 #include <CppFuse/Views/TFileSystemCLI.hpp>
+#include <CppFuse/Views/TFileSystemClientCLI.hpp>
 #include <gtest/gtest.h>
 
 #include <fstream>
@@ -6,21 +7,24 @@
 #include <thread>
 #include <chrono>
 
+#include <unistd.h>
+
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 static const fs::path s_xMountPath = "/mnt/fuse";
-static const fs::path s_xPipePath = "/mnt/fuse_pipe";
-
+static const std::string_view s_sTestFifo = "TestFifo";
+static constexpr unsigned long s_uBufferSize = 1000;
 
 class TFileSystemTestFixture : public ::testing::Test {
     protected:
     static void SetUpTestSuite() {
-        s_pChildThread = std::make_unique<std::jthread>([]() {
+        mkfifo(s_xFifoPath.c_str(), 0775);
+        s_pChildThread = std::make_unique<std::jthread>([fifoPath=s_xFifoPath]() {
             std::system((std::string("mount -t ") + s_xMountPath.c_str()).c_str());
             std::system((std::string("fusermount -u ") + s_xMountPath.c_str()).c_str());
-            std::vector<const char*> args = { fs::current_path().c_str(), "-f", "-m", s_xMountPath.c_str(), "-p", s_xPipePath.c_str() };
-            auto cli = cppfuse::TFileSystemCLI("CppFuse");
+            std::vector<const char*> args = { fs::current_path().c_str(), "-f", "-m", s_xMountPath.c_str(), "-p", fifoPath.c_str() };
+            auto cli = cppfuse::TFileSystemCLI();
             CLI11_PARSE(cli, args.size(), const_cast<char**>(args.data()));
             return 0;
         });
@@ -32,10 +36,12 @@ class TFileSystemTestFixture : public ::testing::Test {
     }
 
     protected:
+    static fs::path s_xFifoPath;
     static std::unique_ptr<std::jthread> s_pChildThread;
 };
 
 std::unique_ptr<std::jthread> TFileSystemTestFixture::s_pChildThread = nullptr;
+fs::path TFileSystemTestFixture::s_xFifoPath = fs::current_path() / s_sTestFifo;
 
 TEST_F(TFileSystemTestFixture, RegularFile) {
     const auto filePath = s_xMountPath / fs::path("text.txt");
@@ -76,4 +82,15 @@ TEST_F(TFileSystemTestFixture, Directory) {
         const auto fileIt = fs::directory_iterator(dirPath);
         EXPECT_EQ(fileIt, end(fileIt));
     }
+}
+
+TEST_F(TFileSystemTestFixture, FindByName) {
+    fs::create_directory(s_xMountPath / "bar");
+    fs::create_directory(s_xMountPath / "bar/bar");
+    fs::create_directory(s_xMountPath / "bar/bar/baz");
+    fs::create_directory(s_xMountPath / "bar/bar/baz/bar");
+
+    auto buffer = std::array<char, s_uBufferSize>();
+    cppfuse::TFileSystemClientCLI::FindByName(s_xFifoPath, "bar", buffer);
+    EXPECT_STREQ(buffer.data(), "/bar\n/bar/bar\n/bar/bar/baz/bar\n");
 }

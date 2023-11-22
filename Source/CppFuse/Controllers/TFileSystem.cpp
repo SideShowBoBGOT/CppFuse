@@ -190,7 +190,7 @@ void TFileSystem::FindByNameThread() {
                 continue;
             }
             for(const auto& p : paths) {
-                fOut << p << "\n";
+                fOut << p.native() << "\n";
             }
         } catch(const TFSException& ex) {
             auto fOut = std::ofstream(FifoPath);
