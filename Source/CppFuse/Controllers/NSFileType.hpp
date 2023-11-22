@@ -1,8 +1,8 @@
 #ifndef CPPFUSE_NSFILETYPE_HPP
 #define CPPFUSE_NSFILETYPE_HPP
 
-#include "CppFuse/Models/NNFileType.hpp"
-#include "CppFuse/Models/TFileObjects.hpp"
+#include <CppFuse/Models/NNFileType.hpp>
+#include <CppFuse/Models/TFileObjects.hpp>
 
 namespace cppfuse::NSFileType {
 

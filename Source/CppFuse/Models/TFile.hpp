@@ -1,7 +1,7 @@
 #ifndef CPPFUSE_TFILE_HPP
 #define CPPFUSE_TFILE_HPP
 
-#include "CppFuse/Helpers/ASharedLock.hpp"
+#include <CppFuse/Helpers/ASharedLock.hpp>
 
 namespace cppfuse {
 

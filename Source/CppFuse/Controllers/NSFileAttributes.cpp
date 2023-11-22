@@ -1,4 +1,4 @@
-#include "NSFileAttributes.hpp"
+#include <CppFuse/Controllers/NSFileAttributes.hpp>
 #include <CppFuse/Controllers/TGetFileParameter.hpp>
 
 namespace cppfuse::NSFileAttributes {

@@ -1,8 +1,8 @@
 #ifndef CPPFUSE_TSETFILEPARAMETER_HPP
 #define CPPFUSE_TSETFILEPARAMETER_HPP
 
-#include "CppFuse/Models/TFileObjects.hpp"
-#include "NSFileType.hpp"
+#include <CppFuse/Models/TFileObjects.hpp>
+#include <CppFuse/Controllers/NSFileType.hpp>
 
 namespace cppfuse {
 

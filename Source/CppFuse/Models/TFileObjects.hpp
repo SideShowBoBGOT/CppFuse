@@ -1,8 +1,8 @@
 #ifndef CPPFUSE_TFILEOBJECTS_HPP
 #define CPPFUSE_TFILEOBJECTS_HPP
 
-#include "TFile.hpp"
-#include "NNFileType.hpp"
+#include <CppFuse/Models/TFile.hpp>
+#include <CppFuse/Models/NNFileType.hpp>
 
 #include <variant>
 #include <vector>

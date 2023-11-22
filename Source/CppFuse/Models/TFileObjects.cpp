@@ -1,5 +1,5 @@
-#include "TFileObjects.hpp"
-#include "CppFuse/Controllers/TSetFileParameter.hpp"
+#include <CppFuse/Models/TFileObjects.hpp>
+#include <CppFuse/Controllers/TSetFileParameter.hpp>
 
 namespace cppfuse {
 

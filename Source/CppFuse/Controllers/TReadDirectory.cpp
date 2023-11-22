@@ -1,7 +1,7 @@
-#include "TReadDirectory.hpp"
-#include "TGetFileParameter.hpp"
+#include <CppFuse/Controllers/TReadDirectory.hpp>
+#include <CppFuse/Controllers/TGetFileParameter.hpp>
+#include <CppFuse/Controllers/NSFindFile.hpp>
 #include <CppFuse/Errors/TFSException.hpp>
-#include "NSFindFile.hpp"
 
 namespace cppfuse {
 
