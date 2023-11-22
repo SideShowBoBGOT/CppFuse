@@ -5,13 +5,21 @@
 #include <CppFuse/Controllers/TReadDirectory.hpp>
 #include <CppFuse/Controllers/NSDeleteFile.hpp>
 #include <CppFuse/Errors/TFSException.hpp>
+
+#include <thread>
 #include <cstring>
 #include <iostream>
 #include <span>
+#include <fstream>
 
 namespace cppfuse {
 
 static constexpr std::string_view s_sRootPath = "/";
+static constexpr unsigned s_uCommunicationBufferSize = 1000;
+static constexpr std::string_view s_sNoFilesWithSuchName = "No files with such name\n";
+
+ASharedRwLock<TDirectory> TFileSystem::s_pRootDir = TDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
+fs::path TFileSystem::FifoPath = "";
 
 int TFileSystem::Init(int argc, char *argv[]) {
     fuse_operations FileSystemOperations = {
@@ -27,6 +35,7 @@ int TFileSystem::Init(int argc, char *argv[]) {
         .write = cppfuse::TFileSystem::Write,
         .readdir = cppfuse::TFileSystem::ReadDir,
     };
+    auto fifoCommunicationThread = std::jthread(TFileSystem::FindByNameThread);
     return fuse_main(argc, argv, &FileSystemOperations, nullptr);
 }
 
@@ -54,9 +63,10 @@ int TFileSystem::ReadLink(const char* path, char* buffer, size_t size) {
 
 int TFileSystem::MkNod(const char* path, mode_t mode, dev_t rdev) {
     try {
-        const auto newDirPath = std::filesystem::path(path);
-        auto parentDir = NSFindFile::FindDir(newDirPath.parent_path());
-        TRegularFile::New(newDirPath.filename(), mode, parentDir);
+        const auto newPath = std::filesystem::path(path);
+        auto parentDir = NSFindFile::FindDir(newPath.parent_path());
+        TRegularFile::New(newPath.filename(), mode, parentDir);
+        NSFindFile::AddToNameHash(newPath);
         return 0;
     } catch(const TFSException& ex) {
         return ex.Type();
@@ -65,9 +75,10 @@ int TFileSystem::MkNod(const char* path, mode_t mode, dev_t rdev) {
 
 int TFileSystem::MkDir(const char* path, mode_t mode) {
     try {
-        const auto newDirPath = std::filesystem::path(path);
-        auto parentDir = NSFindFile::FindDir(newDirPath.parent_path());
-        TDirectory::New(newDirPath.filename(), mode, parentDir);
+        const auto newPath = std::filesystem::path(path);
+        auto parentDir = NSFindFile::FindDir(newPath.parent_path());
+        TDirectory::New(newPath.filename(), mode, parentDir);
+        NSFindFile::AddToNameHash(newPath);
         return 0;
     } catch(const TFSException& ex) {
         return ex.Type();
@@ -93,12 +104,13 @@ int TFileSystem::RmDir(const char* path) {
 }
 
 int TFileSystem::SymLink(const char* target_path, const char* link_path) {
-    const auto linkPath = std::filesystem::path(link_path);
     try {
-        const auto parentDir = NSFindFile::FindDir(linkPath.parent_path());
-        TLink::New(linkPath.filename(), static_cast<mode_t>(0775), parentDir, target_path);
+        const auto newPath = std::filesystem::path(link_path);
+        const auto parentDir = NSFindFile::FindDir(newPath.parent_path());
+        TLink::New(newPath.filename(), static_cast<mode_t>(0775), parentDir, target_path);
+        NSFindFile::AddToNameHash(newPath);
         return 0;
-    } catch (const TFSException& ex) {
+    } catch(const TFSException& ex) {
         return ex.Type();
     }
 }
@@ -107,7 +119,7 @@ int TFileSystem::ChMod(const char* path, mode_t mode, struct fuse_file_info* fi)
     try {
         const auto var = NSFindFile::Find(path);
         TSetInfoMode{mode}(var);
-    } catch (const TFSException& ex) {
+    } catch(const TFSException& ex) {
         return ex.Type();
     }
     return 0;
@@ -122,7 +134,7 @@ int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset,
         const auto readSize = std::min(offsetSize, size);
         std::memcpy(buffer, fileRead->Data.data() + offset, readSize);
         return static_cast<int>(readSize);
-    } catch (const TFSException& ex) {
+    } catch(const TFSException& ex) {
         return ex.Type();
     }
 }
@@ -143,7 +155,7 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
             data.insert(data.begin() + offset, src.begin(), src.end());
         }
         return static_cast<int>(size);
-    } catch (const TFSException& ex) {
+    } catch(const TFSException& ex) {
         return ex.Type();
     }
 }
@@ -153,13 +165,40 @@ int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler,
     try {
         TReadDirectory{path, buffer, filler}();
         return 0;
-    } catch (const TFSException& ex) {
+    } catch(const TFSException& ex) {
         return ex.Type();
     }
 }
 
-ASharedRwLock<TDirectory> TFileSystem::s_pRootDir = TDirectory::New(s_sRootPath.data(), static_cast<mode_t>(0777), nullptr);
-
 const ASharedRwLock<TDirectory>& TFileSystem::RootDir() { return s_pRootDir; }
+
+void TFileSystem::FindByNameThread() {
+    auto buffer = std::array<char, s_uCommunicationBufferSize>();
+    while(true) {
+        {
+            auto fIn = std::ifstream(FifoPath);
+            if(!fIn.is_open()) {
+                continue;
+            }
+            fIn.read(buffer.data(), buffer.size());
+        }
+        const auto path = std::string(buffer.data());
+        try {
+            const auto& paths = NSFindFile::FindByName(path);
+            auto fOut = std::ofstream(FifoPath);
+            if(!fOut.is_open()) {
+                continue;
+            }
+            for(const auto& p : paths) {
+                fOut << p.native() << "\n";
+            }
+        } catch(const TFSException& ex) {
+            auto fOut = std::ofstream(FifoPath);
+            if(fOut.is_open()) {
+                fOut << s_sNoFilesWithSuchName;
+            }
+        }
+    }
+}
 
 }

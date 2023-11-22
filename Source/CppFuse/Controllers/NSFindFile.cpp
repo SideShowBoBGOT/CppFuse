@@ -1,13 +1,15 @@
 #include <CppFuse/Controllers/NSFindFile.hpp>
 #include <CppFuse/Controllers/TFileSystem.hpp>
 #include <CppFuse/Errors/TFSException.hpp>
-#include "TGetFileParameter.hpp"
-#include <algorithm>
+#include <CppFuse/Controllers/TGetFileParameter.hpp>
+
 #include <array>
+#include <map>
 
 namespace cppfuse::NSFindFile {
 
 static constexpr std::string_view s_sRootPath = "/";
+static auto s_mNamePath = rwl::TRwLock<std::map<std::string, std::set<fs::path>>>();
 
 ASharedFileVariant RecursiveFind(const fs::path& path,
     fs::path::iterator it, const rwl::TRwLockReadGuard<TDirectory>& dirRead) {
@@ -29,6 +31,32 @@ ASharedFileVariant RecursiveFind(const fs::path& path,
         return RecursiveFind(path, ++it, (*dir)->Read());
     }
     throw TFSException(path.begin(), it, NFSExceptionType::NotDirectory);
+}
+
+void AddToNameHash(const fs::path& path) {
+    auto namePathWrite = s_mNamePath.Write();
+    auto normalPath = path.lexically_normal();
+    namePathWrite->operator[](path.filename()).insert(normalPath);
+}
+
+void RemoveFromNameHash(const fs::path& path) {
+    auto namePathWrite = s_mNamePath.Write();
+    auto normalPath = path.lexically_normal();
+    auto filenamePath = normalPath.filename();
+    const auto& filename = filenamePath.native();
+    auto& collisions = namePathWrite->operator[](filename);
+    collisions.erase(normalPath);
+    if(collisions.empty()) {
+        collisions.erase(filename);
+    }
+}
+
+const std::set<fs::path>& FindByName(const std::string& name) {
+    auto namePathRead = s_mNamePath.Read();
+    if(!namePathRead->contains(name)) {
+        throw TFSException(std::string_view(name), NFSExceptionType::FileNotExist);
+    }
+    return namePathRead->at(name);
 }
 
 template<typename T, auto FSExceptionValue>

@@ -16,7 +16,8 @@ add_library(${PROJECT_NAME} STATIC
         Source/${PROJECT_NAME}/Controllers/NSFindFile.cpp
         Source/${PROJECT_NAME}/Models/TFileObjects.cpp
         Source/${PROJECT_NAME}/Controllers/NSDeleteFile.cpp
-        Source/${PROJECT_NAME}/Views/TFileSystemCLI.cpp)
+        Source/${PROJECT_NAME}/Views/TFileSystemCLI.cpp
+        Source/${PROJECT_NAME}/Views/TFileSystemClientCLI.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC Source)
 target_link_libraries(${PROJECT_NAME} PUBLIC RwLock::RwLock)
@@ -32,6 +33,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${FUSE3_LIBRARIES})
 
 add_executable(MainExecutable main.cpp)
 target_link_libraries(MainExecutable PRIVATE ${PROJECT_NAME})
+
+add_executable(FindByName FindByName.cpp)
+target_link_libraries(FindByName PRIVATE ${PROJECT_NAME})
 
 add_subdirectory(Tests)
 

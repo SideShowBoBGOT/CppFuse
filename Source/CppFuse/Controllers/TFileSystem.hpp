@@ -30,6 +30,12 @@ class TFileSystem {
     public:
     static const ASharedRwLock<TDirectory>& RootDir();
 
+    public:
+    static fs::path FifoPath;
+
+    protected:
+    static void FindByNameThread();
+
     protected:
     static ASharedRwLock<TDirectory> s_pRootDir;
 };
