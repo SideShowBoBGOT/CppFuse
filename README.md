@@ -66,7 +66,7 @@ Write to file:
 Read from file:
 
     $ cat bar/file.txt
-    Hello, World!
+>    Hello, World!
 
 Create a symbolic link to file:
 
