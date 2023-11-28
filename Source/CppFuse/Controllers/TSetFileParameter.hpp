@@ -6,26 +6,33 @@
 
 namespace cppfuse {
 
-template<typename ParamType>
+template<typename ParamType, typename DerivedType>
 class TSetInfoParameterMixin {
     public:
     TSetInfoParameterMixin(const ParamType& param) : m_xParam{param} {}
-    void operator()(const ASharedFileVariant& var) { std::visit(*this, var); }
+    void operator()(const ASharedFileVariant& var) { std::visit(*Self(), var); }
+
+    protected:
+    constexpr DerivedType* Self() { return reinterpret_cast<DerivedType*>(this); }
+    TFile<TDirectory>* FileBase(CWriteGuardFileObject auto& var) {
+        return reinterpret_cast<TFile<TDirectory>*>(var.GetPtr());
+    }
 
     protected:
     const ParamType& m_xParam;
 };
 
 template<typename ParamType, typename DerivedType>
-class TSetInfoParameterGeneralMixin : public TSetInfoParameterMixin<ParamType> {
+class TSetInfoParameterGeneralMixin : public TSetInfoParameterMixin<ParamType, DerivedType> {
     public:
-    TSetInfoParameterGeneralMixin(const ParamType& param) : TSetInfoParameterMixin<ParamType>(param) {}
+    TSetInfoParameterGeneralMixin(const ParamType& param)
+        : TSetInfoParameterMixin<ParamType, DerivedType>(param) {}
 
     public:
-    using TSetInfoParameterMixin<ParamType>::operator();
+    using TSetInfoParameterMixin<ParamType, DerivedType>::operator();
     void operator()(const CSharedRwFileObject auto& var) {
-        auto writeObj = var->Write();
-        reinterpret_cast<DerivedType*>(this)->operator()(var->Write());
+        auto varWrite = var->Write();
+        this->Self()->operator()(varWrite);
     }
 };
 
@@ -35,7 +42,7 @@ class TSetInfoName : public TSetInfoParameterGeneralMixin<std::string, TSetInfoN
         : TSetInfoParameterGeneralMixin<std::string, TSetInfoName>(param) {}
     using TSetInfoParameterGeneralMixin<std::string, TSetInfoName>::operator();
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_sName = m_xParam;
+        this->FileBase(var)->m_sName = m_xParam;
     }
 };
 
@@ -45,7 +52,7 @@ class TSetInfoUid : public TSetInfoParameterGeneralMixin<uid_t, TSetInfoUid> {
         : TSetInfoParameterGeneralMixin<uid_t, TSetInfoUid>(param) {}
     using TSetInfoParameterGeneralMixin<uid_t, TSetInfoUid>::operator();
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_uUid = m_xParam;
+        this->FileBase(var)->m_uUid = m_xParam;
     }
 };
 
@@ -55,25 +62,25 @@ class TSetInfoGid : public TSetInfoParameterGeneralMixin<gid_t, TSetInfoGid> {
         : TSetInfoParameterGeneralMixin<gid_t, TSetInfoGid>(param) {}
     using TSetInfoParameterGeneralMixin<gid_t, TSetInfoGid>::operator();
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_uGid = m_xParam;
+        this->FileBase(var)->m_uGid = m_xParam;
     }
 };
 
 class TSetInfoMode : public TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode> {
     public:
-    TSetInfoMode(const gid_t& param)
+    TSetInfoMode(const mode_t& param)
         : TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode>(param) {}
     using TSetInfoParameterGeneralMixin<mode_t, TSetInfoMode>::operator();
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_uMode = m_xParam | NSFileType::Get(var);
+        this->FileBase(var)->m_uMode = m_xParam | NSFileType::Get(var);
     }
 };
 
-class TSetInfoParent : public TSetInfoParameterMixin<ASharedRwLock<TDirectory>> {
+class TSetInfoParent : public TSetInfoParameterMixin<ASharedRwLock<TDirectory>, TSetInfoParent> {
     public:
     TSetInfoParent(const ASharedRwLock<TDirectory>& param)
-        : TSetInfoParameterMixin<ASharedRwLock<TDirectory>>(param) {}
-    using TSetInfoParameterMixin<ASharedRwLock<TDirectory>>::operator();
+        : TSetInfoParameterMixin<ASharedRwLock<TDirectory>, TSetInfoParent>(param) {}
+    using TSetInfoParameterMixin<ASharedRwLock<TDirectory>, TSetInfoParent>::operator();
     void operator()(const CSharedRwFileObject auto& var) {
         {
             auto varWrite = var->Write();
@@ -87,7 +94,7 @@ class TSetInfoParent : public TSetInfoParameterMixin<ASharedRwLock<TDirectory>> 
 
     protected:
     void operator()(CWriteGuardFileObject auto& var) {
-        reinterpret_cast<TFile<TDirectory>*>(var.GetPtr())->m_pParent = m_xParam;
+        this->FileBase(var)->m_pParent = m_xParam;
     }
 };
 

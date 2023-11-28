@@ -2,6 +2,7 @@
 #include <CppFuse/Controllers/NSFindFile.hpp>
 #include <CppFuse/Controllers/NSFileAttributes.hpp>
 #include <CppFuse/Controllers/TSetFileParameter.hpp>
+#include <CppFuse/Controllers/TGetFileParameter.hpp>
 #include <CppFuse/Controllers/TReadDirectory.hpp>
 #include <CppFuse/Controllers/NSDeleteFile.hpp>
 #include <CppFuse/Errors/TFSException.hpp>
@@ -23,17 +24,19 @@ fs::path TFileSystem::FifoPath = "";
 
 int TFileSystem::Init(int argc, char *argv[]) {
     fuse_operations FileSystemOperations = {
-        .getattr = cppfuse::TFileSystem::GetAttr,
-        .readlink = cppfuse::TFileSystem::ReadLink,
-        .mknod = cppfuse::TFileSystem::MkNod,
-        .mkdir = cppfuse::TFileSystem::MkDir,
-        .unlink = cppfuse::TFileSystem::Unlink,
-        .rmdir = cppfuse::TFileSystem::RmDir,
-        .symlink = cppfuse::TFileSystem::SymLink,
-        .chmod = cppfuse::TFileSystem::ChMod,
-        .read = cppfuse::TFileSystem::Read,
-        .write = cppfuse::TFileSystem::Write,
-        .readdir = cppfuse::TFileSystem::ReadDir,
+        .getattr = GetAttr,
+        .readlink = ReadLink,
+        .mknod = MkNod,
+        .mkdir = MkDir,
+        .unlink = Unlink,
+        .rmdir = RmDir,
+        .symlink = SymLink,
+        .chmod = ChMod,
+        .read = Read,
+        .write = Write,
+        .opendir = OpenDir,
+        .readdir = ReadDir,
+        .access = Access
     };
     auto fifoCommunicationThread = std::jthread(TFileSystem::FindByNameThread);
     return fuse_main(argc, argv, &FileSystemOperations, nullptr);
@@ -125,6 +128,20 @@ int TFileSystem::ChMod(const char* path, mode_t mode, struct fuse_file_info* fi)
     return 0;
 }
 
+//int TFileSystem::Open(const char* path, struct fuse_file_info* info) {
+//    try {
+//        const auto var = NSFindFile::FindRegularFile(path);
+//        auto mode = 0;
+//        if(info->flags & O_WRONLY) mode |= W_OK;
+//        if(info->flags & O_RDONLY) mode |= R_OK;
+//        if(info->flags & O_RDWR) mode |= W_OK | R_OK;
+//        return static_cast<int>(TGetInfoMode{}(var)) & mode ? 0 : NFSExceptionType::AccessNotPermitted;
+//    } catch(const TFSException& ex) {
+//        return ex.Type();
+//    }
+//    return 0;
+//}
+
 int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset, struct fuse_file_info* info) {
     try {
         auto file = NSFindFile::FindRegularFile(path);
@@ -160,11 +177,29 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
     }
 }
 
+int TFileSystem::OpenDir(const char* path, struct fuse_file_info* info) {
+    try {
+        const auto var = NSFindFile::FindDir(path);
+        return static_cast<int>(TGetInfoMode{}(var)) & R_OK ? 0 : NFSExceptionType::AccessNotPermitted;
+    } catch(const TFSException& ex) {
+        return ex.Type();
+    }
+}
+
 int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler, off_t offset,
     struct fuse_file_info* fi, enum fuse_readdir_flags flags) {
     try {
         TReadDirectory{path, buffer, filler}();
         return 0;
+    } catch(const TFSException& ex) {
+        return ex.Type();
+    }
+}
+
+int TFileSystem::Access(const char* path, int mode) {
+    try {
+        const auto var = NSFindFile::Find(path);
+        return static_cast<int>(TGetInfoMode{}(var)) & mode ? 0 : NFSExceptionType::AccessNotPermitted;
     } catch(const TFSException& ex) {
         return ex.Type();
     }

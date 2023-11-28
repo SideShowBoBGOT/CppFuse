@@ -7,6 +7,7 @@ namespace cppfuse {
 
 namespace NNFSExceptionType {
     enum NFSExceptionType {
+        AccessNotPermitted = -EACCES,
         FileNotExist = -ENOENT,
         NotDirectory = -ENOTDIR,
         NotLink = -ENOLINK,
