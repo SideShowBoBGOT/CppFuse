@@ -18,7 +18,8 @@ add_library(${PROJECT_NAME} STATIC
         Source/${PROJECT_NAME}/Controllers/NSDeleteFile.cpp
         Source/${PROJECT_NAME}/Views/TFileSystemCLI.cpp
         Source/${PROJECT_NAME}/Views/TFileSystemClientCLI.cpp
-        Source/CppFuse/Controllers/NSAccessFile.cpp)
+        Source/CppFuse/Controllers/NSAccessFile.cpp
+        Source/CppFuse/Helpers/NSHelperFuncs.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC Source)
 target_link_libraries(${PROJECT_NAME} PUBLIC RwLock::RwLock)

@@ -1,4 +1,5 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
+
 #include <CppFuse/Controllers/NSFindFile.hpp>
 #include <CppFuse/Controllers/NSFileAttributes.hpp>
 #include <CppFuse/Controllers/TSetFileParameter.hpp>
@@ -22,6 +23,19 @@ static constexpr std::string_view s_sNoFilesWithSuchName = "No files with such n
 
 fs::path TFileSystem::FifoPath = "";
 
+template<CFileObject T, typename ...Args>
+int AddFile(const char* path, mode_t mode, Args&&... args) {
+    const auto newPath = std::filesystem::path(path);
+    const auto parentPath = newPath.parent_path();
+    if(NSAccessFile::Access(parentPath, W_OK)==NFileAccess::Restricted) {
+        return NFSExceptionType::AccessNotPermitted;
+    }
+    auto parentDir = NSFindFile::FindDir(parentPath);
+    T::New(newPath.filename(), mode, parentDir, args...);
+    NSFindFile::AddToNameHash(newPath);
+    return 0;
+}
+
 int TFileSystem::Init(int argc, char *argv[]) {
     fuse_operations FileSystemOperations = {
         .getattr = GetAttr,
@@ -32,10 +46,10 @@ int TFileSystem::Init(int argc, char *argv[]) {
         .rmdir = RmDir,
         .symlink = SymLink,
         .chmod = ChMod,
-        //.open = Open,
+        .open = Open,
         .read = Read,
         .write = Write,
-        //.opendir = OpenDir,
+        .opendir = OpenDir,
         .readdir = ReadDir,
         .access = Access
     };
@@ -67,11 +81,7 @@ int TFileSystem::ReadLink(const char* path, char* buffer, size_t size) {
 
 int TFileSystem::MkNod(const char* path, mode_t mode, dev_t rdev) {
     try {
-        const auto newPath = std::filesystem::path(path);
-        auto parentDir = NSFindFile::FindDir(newPath.parent_path());
-        TRegularFile::New(newPath.filename(), mode, parentDir);
-        NSFindFile::AddToNameHash(newPath);
-        return 0;
+        return AddFile<TRegularFile>(path, mode);
     } catch(const TFSException& ex) {
         return ex.Type();
     }
@@ -79,11 +89,7 @@ int TFileSystem::MkNod(const char* path, mode_t mode, dev_t rdev) {
 
 int TFileSystem::MkDir(const char* path, mode_t mode) {
     try {
-        const auto newPath = std::filesystem::path(path);
-        auto parentDir = NSFindFile::FindDir(newPath.parent_path());
-        TDirectory::New(newPath.filename(), mode, parentDir);
-        NSFindFile::AddToNameHash(newPath);
-        return 0;
+        return AddFile<TDirectory>(path, mode);
     } catch(const TFSException& ex) {
         return ex.Type();
     }
@@ -109,11 +115,7 @@ int TFileSystem::RmDir(const char* path) {
 
 int TFileSystem::SymLink(const char* target_path, const char* link_path) {
     try {
-        const auto newPath = std::filesystem::path(link_path);
-        const auto parentDir = NSFindFile::FindDir(newPath.parent_path());
-        TLink::New(newPath.filename(), static_cast<mode_t>(0775), parentDir, target_path);
-        NSFindFile::AddToNameHash(newPath);
-        return 0;
+        return AddFile<TLink>(link_path, 0775, target_path);
     } catch(const TFSException& ex) {
         return ex.Type();
     }
@@ -131,12 +133,7 @@ int TFileSystem::ChMod(const char* path, mode_t mode, struct fuse_file_info* fi)
 
 int TFileSystem::Open(const char* path, struct fuse_file_info* info) {
     try {
-        auto mode = 0;
-        if(info->flags & O_RDONLY) mode |= R_OK;
-        if(info->flags & O_WRONLY) mode |= W_OK;
-        if(info->flags & O_RDWR) mode |= W_OK | R_OK;
-        if(info->flags & O_EXCL) mode |= X_OK;
-        return NSAccessFile::Access(path, mode);
+        return NSAccessFile::AccessWithFuseFlags(path, info->flags);
     } catch(const TFSException& ex) {
         return ex.Type();
     }
@@ -145,9 +142,6 @@ int TFileSystem::Open(const char* path, struct fuse_file_info* info) {
 int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset, struct fuse_file_info* info) {
     try {
         auto file = NSFindFile::FindRegularFile(path);
-        if(not (TGetInfoMode{}(file) & R_OK)) {
-            return NFSExceptionType::AccessNotPermitted;
-        }
         const auto fileRead = file->Read();
         const auto& data = fileRead->Data;
         const auto offsetSize = static_cast<size_t>(data.end() - (data.begin() + offset));
@@ -162,9 +156,6 @@ int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset,
 int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t offset, struct fuse_file_info* info) {
     try {
         auto file = NSFindFile::FindRegularFile(path);
-        if(not (TGetInfoMode{}(file) & W_OK)) {
-            return NFSExceptionType::AccessNotPermitted;
-        }
         auto fileWrite = file->Write();
         auto& data = fileWrite->Data;
         const auto src = std::span(buffer, size);
@@ -185,12 +176,7 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
 
 int TFileSystem::OpenDir(const char* path, struct fuse_file_info* info) {
     try {
-        auto mode = 0;
-        if(info->flags & O_RDONLY) mode |= R_OK;
-        if(info->flags & O_WRONLY) mode |= W_OK;
-        if(info->flags & O_RDWR) mode |= W_OK | R_OK;
-        if(info->flags & O_EXCL) mode |= X_OK;
-        return NSAccessFile::Access(path, mode);
+        return NSAccessFile::AccessWithFuseFlags(path, info->flags);
     } catch(const TFSException& ex) {
         return ex.Type();
     }

@@ -3,11 +3,14 @@
 
 #include <filesystem>
 
+#include <CppFuse/Models/NNFileAccess.hpp>
+
 namespace cppfuse::NSAccessFile {
 
 namespace fs = std::filesystem;
 
-int Access(const fs::path& path, int accessMask);
+NFileAccess Access(const fs::path& path, int accessMask);
+NFileAccess AccessWithFuseFlags(const fs::path& path, int fuseFlags);
 
 }
 
