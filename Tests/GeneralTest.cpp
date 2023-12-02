@@ -66,7 +66,9 @@ TEST_F(TFileSystemTestFixture, Directory) {
     fs::create_directory(dirPath);
     EXPECT_TRUE(fs::is_directory(dirPath));
     const auto filePath = dirPath / fs::path("indirFile");
-    std::ofstream(filePath.c_str());
+    {
+        std::ofstream(filePath.c_str());
+    }
 
     {
         SCOPED_TRACE("CheckFileInsideDirectory");
@@ -94,3 +96,105 @@ TEST_F(TFileSystemTestFixture, FindByName) {
     cppfuse::TFileSystemClientCLI::FindByName(s_xFifoPath, "bar", buffer);
     EXPECT_STREQ(buffer.data(), "/bar\n/bar/bar\n/bar/bar/baz/bar\n");
 }
+
+TEST_F(TFileSystemTestFixture, FileAccess) {
+    const auto filePath = s_xMountPath / fs::path("accessFile");
+    {
+        auto f = std::ofstream(filePath.c_str());
+    }
+    {
+        SCOPED_TRACE("AllPermissionGranted");
+        fs::permissions(filePath, fs::perms::owner_all, fs::perm_options::add);
+        const auto file = std::fstream(filePath.c_str(), std::ios::out | std::ios::in);
+        EXPECT_TRUE(file.is_open());
+        const auto perms = fs::status(filePath).permissions();
+        EXPECT_EQ(perms & fs::perms::owner_read, fs::perms::owner_read);
+        EXPECT_EQ(perms & fs::perms::owner_write, fs::perms::owner_write);
+        EXPECT_EQ(perms & fs::perms::owner_exec, fs::perms::owner_exec);
+    }
+    {
+        SCOPED_TRACE("WriteProtected");
+        fs::permissions(filePath, fs::perms::owner_write, fs::perm_options::remove);
+        EXPECT_EQ(fs::status(filePath).permissions() & fs::perms::owner_write, fs::perms::none);
+        auto file = std::fstream(filePath.c_str(), std::ios::ate);
+        EXPECT_FALSE(file.is_open());
+    }
+    {
+        SCOPED_TRACE("ReadProtected");
+        fs::permissions(filePath, fs::perms::owner_read, fs::perm_options::remove);
+        EXPECT_EQ(fs::status(filePath).permissions() & fs::perms::owner_read, fs::perms::none);
+        const auto file = std::fstream(filePath.c_str(), std::ios::in);
+        EXPECT_FALSE(file.is_open());
+    }
+    {
+        SCOPED_TRACE("ExecuteProtected");
+        const auto cmdName = std::string("mkdir");
+        const auto cmdPath = s_xMountPath / cmdName;
+        fs::copy(fs::path("/bin") / cmdName, cmdPath);
+        fs::permissions(cmdPath,
+            fs::perms::owner_all | fs::perms::group_all | fs::perms::others_all,
+            fs::perm_options::add);
+        const auto cmdOne = std::string(".") + cmdPath.native() + " " + (s_xMountPath / "cmdDir1").c_str();
+        EXPECT_EQ(std::system(cmdOne.c_str()), 0);
+        fs::permissions(cmdPath,
+            fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec,
+            fs::perm_options::remove);
+        EXPECT_EQ(fs::status(cmdPath).permissions() & fs::perms::owner_exec, fs::perms::none);
+        const auto cmdTwo = std::string(".") + cmdPath.native() + " " + (s_xMountPath / "cmdDir2").c_str();
+        EXPECT_EQ(std::system(cmdTwo.c_str()), 32256);
+    }
+}
+
+TEST_F(TFileSystemTestFixture, DirectoryAccess) {
+    const auto dirPath = s_xMountPath / fs::path("accessDirectory");
+    fs::create_directory(dirPath);
+    {
+        SCOPED_TRACE("AllPermissionGranted");
+        fs::permissions(dirPath, fs::perms::owner_all, fs::perm_options::add);
+        const auto perms = fs::status(dirPath).permissions();
+        EXPECT_EQ(perms & fs::perms::owner_read, fs::perms::owner_read);
+        EXPECT_EQ(perms & fs::perms::owner_write, fs::perms::owner_write);
+        EXPECT_EQ(perms & fs::perms::owner_exec, fs::perms::owner_exec);
+        const auto testFileOnePath = dirPath / "accessDirectoryTestFileOne";
+        auto file = std::ofstream(testFileOnePath);
+        EXPECT_TRUE(fs::exists(testFileOnePath.c_str()));
+        auto it = fs::directory_iterator(dirPath);
+        EXPECT_EQ(std::distance(it, fs::end(it)), 1);
+    }
+    {
+        SCOPED_TRACE("WriteProtected");
+        fs::permissions(dirPath, fs::perms::owner_write, fs::perm_options::remove);
+        EXPECT_EQ(fs::status(dirPath).permissions() & fs::perms::owner_write, fs::perms::none);
+        const auto testFileTwoPath = dirPath / "accessDirectoryTestFileTwo";
+        auto file = std::ofstream(testFileTwoPath);
+        EXPECT_FALSE(file.is_open());
+    }
+    {
+        SCOPED_TRACE("ReadProtected");
+        fs::permissions(dirPath, fs::perms::owner_read, fs::perm_options::remove);
+        EXPECT_EQ(fs::status(dirPath).permissions() & fs::perms::owner_read, fs::perms::none);
+        const auto file = std::fstream(dirPath.c_str(), std::ios::in);
+        auto isCaughtError = false;
+        try {
+            auto it = fs::directory_iterator(dirPath);
+        } catch(const fs::filesystem_error& ex) {
+            isCaughtError = true;
+        }
+        EXPECT_TRUE(isCaughtError);
+    }
+    {
+        SCOPED_TRACE("ExecuteProtected");
+        fs::permissions(dirPath, fs::perms::owner_exec, fs::perm_options::remove);
+        EXPECT_EQ(fs::status(dirPath).permissions() & fs::perms::owner_exec, fs::perms::none);
+    }
+}
+
+//TEST_F(TFileSystemTestFixture, LinkAccess) {
+//    const auto filePath = s_xMountPath / "accessLinkFile";
+//    {
+//        auto f = std::ofstream(filePath.c_str());
+//    }
+//    const auto linkPath = s_xMountPath / "accessLink";
+//    fs::create_symlink(filePath, linkPath);
+//
+//}

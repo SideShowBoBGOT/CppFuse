@@ -141,6 +141,9 @@ int TFileSystem::Open(const char* path, struct fuse_file_info* info) {
 
 int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset, struct fuse_file_info* info) {
     try {
+        if(NSAccessFile::Access(path, R_OK)==NFileAccess::Restricted) {
+            return NFSExceptionType::AccessNotPermitted;
+        }
         auto file = NSFindFile::FindRegularFile(path);
         const auto fileRead = file->Read();
         const auto& data = fileRead->Data;
@@ -155,6 +158,9 @@ int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset,
 
 int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t offset, struct fuse_file_info* info) {
     try {
+        if(NSAccessFile::Access(path, W_OK)==NFileAccess::Restricted) {
+            return NFSExceptionType::AccessNotPermitted;
+        }
         auto file = NSFindFile::FindRegularFile(path);
         auto fileWrite = file->Write();
         auto& data = fileWrite->Data;
