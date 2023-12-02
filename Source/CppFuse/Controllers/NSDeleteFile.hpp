@@ -11,6 +11,4 @@ void Delete(const fs::path& path);
 
 }
 
-
-
 #endif //CPPFUSE_NSDELETEFILE_HPP
