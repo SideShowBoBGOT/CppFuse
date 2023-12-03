@@ -71,8 +71,10 @@ int TFileSystem::ReadLink(const char* path, char* buffer, size_t size) {
     try {
         const auto link = NSFindFile::FindLink(path);
         const auto linkRead = link->Read();
-        const auto pathView = std::string_view(linkRead->LinkTo.c_str());
-        std::memcpy(buffer, pathView.data(), pathView.size());
+        const auto& pathView = linkRead->LinkTo.native();
+        auto bufferSpan = std::span(buffer, size);
+        std::fill(bufferSpan.begin(), bufferSpan.end(), 0);
+        std::copy(pathView.begin(), pathView.end(), bufferSpan.begin());
         return 0;
     } catch(const TFSException& ex) {
         return ex.Type();

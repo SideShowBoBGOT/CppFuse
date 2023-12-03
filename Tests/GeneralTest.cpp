@@ -191,9 +191,7 @@ TEST_F(TFileSystemTestFixture, DirectoryAccess) {
 
 //TEST_F(TFileSystemTestFixture, LinkAccess) {
 //    const auto filePath = s_xMountPath / "accessLinkFile";
-//    {
-//        auto f = std::ofstream(filePath.c_str());
-//    }
+//
 //    const auto linkPath = s_xMountPath / "accessLink";
 //    fs::create_symlink(filePath, linkPath);
 //
