@@ -117,7 +117,7 @@ int TFileSystem::RmDir(const char* path) {
 
 int TFileSystem::SymLink(const char* target_path, const char* link_path) {
     try {
-        return AddFile<TLink>(link_path, 0775, target_path);
+        return AddFile<TLink>(link_path, 0777, target_path);
     } catch(const TFSException& ex) {
         return ex.Type();
     }

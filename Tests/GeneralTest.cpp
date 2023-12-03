@@ -7,8 +7,6 @@
 #include <thread>
 #include <chrono>
 
-#include <unistd.h>
-
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
@@ -25,7 +23,7 @@ class TFileSystemTestFixture : public ::testing::Test {
             std::system((std::string("fusermount -u ") + s_xMountPath.c_str()).c_str());
             std::vector<const char*> args = { fs::current_path().c_str(), "-f", "-m", s_xMountPath.c_str(), "-p", fifoPath.c_str() };
             auto cli = cppfuse::TFileSystemCLI();
-            CLI11_PARSE(cli, args.size(), const_cast<char**>(args.data()));
+            CLI11_PARSE(cli, args.size(), const_cast<char**>(args.data()))
             return 0;
         });
         std::this_thread::sleep_for(300ms);
@@ -96,6 +94,8 @@ TEST_F(TFileSystemTestFixture, FindByName) {
     cppfuse::TFileSystemClientCLI::FindByName(s_xFifoPath, "bar", buffer);
     EXPECT_STREQ(buffer.data(), "/bar\n/bar/bar\n/bar/bar/baz/bar\n");
 }
+
+
 
 TEST_F(TFileSystemTestFixture, FileAccess) {
     const auto filePath = s_xMountPath / fs::path("accessFile");
@@ -189,10 +189,53 @@ TEST_F(TFileSystemTestFixture, DirectoryAccess) {
     }
 }
 
-//TEST_F(TFileSystemTestFixture, LinkAccess) {
-//    const auto filePath = s_xMountPath / "accessLinkFile";
-//
-//    const auto linkPath = s_xMountPath / "accessLink";
-//    fs::create_symlink(filePath, linkPath);
-//
-//}
+TEST_F(TFileSystemTestFixture, LinkAccess) {
+    const auto linkPath = s_xMountPath / "accessLink";
+    const auto filePath = s_xMountPath / "accessLinkFile";
+    {
+        auto f = std::ofstream(filePath.c_str());
+    }
+    fs::create_symlink(filePath, linkPath);
+    {
+        SCOPED_TRACE("AllPermissionGranted");
+        fs::permissions(linkPath, fs::perms::owner_all, fs::perm_options::add);
+        const auto file = std::fstream(linkPath.c_str(), std::ios::out | std::ios::in);
+        EXPECT_TRUE(file.is_open());
+        const auto perms = fs::status(linkPath).permissions();
+        EXPECT_EQ(perms & fs::perms::owner_read, fs::perms::owner_read);
+        EXPECT_EQ(perms & fs::perms::owner_write, fs::perms::owner_write);
+        EXPECT_EQ(perms & fs::perms::owner_exec, fs::perms::owner_exec);
+    }
+    {
+        SCOPED_TRACE("WriteProtected");
+        fs::permissions(linkPath, fs::perms::owner_write, fs::perm_options::remove);
+        EXPECT_EQ(fs::status(linkPath).permissions() & fs::perms::owner_write, fs::perms::none);
+        auto file = std::fstream(linkPath.c_str(), std::ios::ate);
+        EXPECT_FALSE(file.is_open());
+    }
+    {
+        SCOPED_TRACE("ReadProtected");
+        fs::permissions(linkPath, fs::perms::owner_read, fs::perm_options::remove);
+        EXPECT_EQ(fs::status(linkPath).permissions() & fs::perms::owner_read, fs::perms::none);
+        const auto file = std::fstream(linkPath.c_str(), std::ios::in);
+        EXPECT_FALSE(file.is_open());
+    }
+    {
+        SCOPED_TRACE("ExecuteProtected");
+        const auto cmdPath = s_xMountPath / "mkdir2";
+        fs::copy("/bin/mkdir", cmdPath);
+        const auto cmdLink = s_xMountPath / "mkdir2Link";
+        fs::create_symlink(cmdPath, cmdLink);
+        fs::permissions(cmdLink,
+            fs::perms::owner_all | fs::perms::group_all | fs::perms::others_all,
+            fs::perm_options::add);
+        const auto cmdOne = std::string(".") + cmdLink.native() + " " + (s_xMountPath / "cmdLinkDir1").c_str();
+        EXPECT_EQ(std::system(cmdOne.c_str()), 0);
+        fs::permissions(cmdLink,
+            fs::perms::owner_exec | fs::perms::group_exec | fs::perms::others_exec,
+            fs::perm_options::remove);
+        EXPECT_EQ(fs::status(cmdLink).permissions() & fs::perms::owner_exec, fs::perms::none);
+        const auto cmdTwo = std::string(".") + cmdLink.native() + " " + (s_xMountPath / "cmdLinkDir2").c_str();
+        EXPECT_EQ(std::system(cmdTwo.c_str()), 32256);
+    }
+}
