@@ -27,7 +27,7 @@ class TFileSystem {
     static int Read(const char* path, char* buffer, size_t size, off_t offset, struct fuse_file_info *fi);
     static int Write(const char* path, const char* buffer, size_t size, off_t offset, struct fuse_file_info *info);
     static int OpenDir(const char* path, struct fuse_file_info* info);
-    static int ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags);
+    static int ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *info, enum fuse_readdir_flags flags);
     static int Access(const char* path, int accessMask);
 
     public:

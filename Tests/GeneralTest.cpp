@@ -95,8 +95,6 @@ TEST_F(TFileSystemTestFixture, FindByName) {
     EXPECT_STREQ(buffer.data(), "/bar\n/bar/bar\n/bar/bar/baz/bar\n");
 }
 
-
-
 TEST_F(TFileSystemTestFixture, FileAccess) {
     const auto filePath = s_xMountPath / fs::path("accessFile");
     {
@@ -105,7 +103,7 @@ TEST_F(TFileSystemTestFixture, FileAccess) {
     {
         SCOPED_TRACE("AllPermissionGranted");
         fs::permissions(filePath, fs::perms::owner_all, fs::perm_options::add);
-        const auto file = std::fstream(filePath.c_str(), std::ios::out | std::ios::in);
+        const auto file = std::fstream(filePath.c_str(), std::ios::ate | std::ios::in);
         EXPECT_TRUE(file.is_open());
         const auto perms = fs::status(filePath).permissions();
         EXPECT_EQ(perms & fs::perms::owner_read, fs::perms::owner_read);

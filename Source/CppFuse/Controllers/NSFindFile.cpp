@@ -16,6 +16,7 @@ ASharedFileVariant RecursiveFind(const fs::path& path,
 
     const auto& itName = it->native();
     const auto& files = dirRead->Files;
+
     const auto childIt = std::ranges::find_if(files,
         [&itName](const auto& f) {
             return std::visit(TGetInfoName{}, f) == itName;

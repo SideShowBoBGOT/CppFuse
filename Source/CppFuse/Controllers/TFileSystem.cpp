@@ -27,10 +27,10 @@ template<CFileObject T, typename ...Args>
 int AddFile(const char* path, mode_t mode, Args&&... args) {
     const auto newPath = std::filesystem::path(path);
     const auto parentPath = newPath.parent_path();
-    if(NSAccessFile::Access(parentPath, W_OK)==NFileAccess::Restricted) {
+    auto parentDir = NSFindFile::FindDir(parentPath);
+    if(NSAccessFile::Access(parentDir, W_OK)==NFileAccess::Restricted) {
         return NFSExceptionType::AccessNotPermitted;
     }
-    auto parentDir = NSFindFile::FindDir(parentPath);
     T::New(newPath.filename(), mode, parentDir, args...);
     NSFindFile::AddToNameHash(newPath);
     return 0;
@@ -143,10 +143,10 @@ int TFileSystem::Open(const char* path, struct fuse_file_info* info) {
 
 int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset, struct fuse_file_info* info) {
     try {
-        if(NSAccessFile::Access(path, R_OK)==NFileAccess::Restricted) {
+        auto file = NSFindFile::FindRegularFile(path);
+        if(NSAccessFile::AccessWithFuseFlags(file, info->flags)==NFileAccess::Restricted) {
             return NFSExceptionType::AccessNotPermitted;
         }
-        auto file = NSFindFile::FindRegularFile(path);
         const auto fileRead = file->Read();
         const auto& data = fileRead->Data;
         const auto offsetSize = static_cast<size_t>(data.end() - (data.begin() + offset));
@@ -160,10 +160,10 @@ int TFileSystem::Read(const char* path, char* buffer, size_t size, off_t offset,
 
 int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t offset, struct fuse_file_info* info) {
     try {
-        if(NSAccessFile::Access(path, W_OK)==NFileAccess::Restricted) {
+        auto file = NSFindFile::FindRegularFile(path);
+        if(NSAccessFile::AccessWithFuseFlags(file, info->flags)==NFileAccess::Restricted) {
             return NFSExceptionType::AccessNotPermitted;
         }
-        auto file = NSFindFile::FindRegularFile(path);
         auto fileWrite = file->Write();
         auto& data = fileWrite->Data;
         const auto src = std::span(buffer, size);
@@ -191,7 +191,7 @@ int TFileSystem::OpenDir(const char* path, struct fuse_file_info* info) {
 }
 
 int TFileSystem::ReadDir(const char* path, void* buffer, fuse_fill_dir_t filler, off_t offset,
-    struct fuse_file_info* fi, enum fuse_readdir_flags flags) {
+    struct fuse_file_info* info, enum fuse_readdir_flags flags) {
     try {
         TReadDirectory{path, buffer, filler}();
         return 0;
