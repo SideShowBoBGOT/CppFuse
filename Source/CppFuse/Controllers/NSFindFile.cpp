@@ -2,6 +2,7 @@
 #include <CppFuse/Controllers/TFileSystem.hpp>
 #include <CppFuse/Errors/TFSException.hpp>
 #include <CppFuse/Controllers/TGetFileParameter.hpp>
+#include <CppFuse/Controllers/NSAccessFile.hpp>
 
 #include <array>
 #include <map>
@@ -28,8 +29,12 @@ ASharedFileVariant RecursiveFind(const fs::path& path,
     if(std::distance(it, path.end()) == 1) {
         return *childIt;
     }
-    if(const auto dir = std::get_if<ASharedRwLock<TDirectory>>(&*childIt)) {
-        return RecursiveFind(path, ++it, (*dir)->Read());
+    if(const auto childDirPtr = std::get_if<ASharedRwLock<TDirectory>>(&*childIt)) {
+        const auto& childDir = *childDirPtr;
+        if(NSAccessFile::Access(childDir, X_OK)==NNFileAccess::Restricted) {
+            throw TFSException(path.begin(), it, NFSExceptionType::AccessNotPermitted);
+        }
+        return RecursiveFind(path, ++it, childDir->Read());
     }
     throw TFSException(path.begin(), it, NFSExceptionType::NotDirectory);
 }

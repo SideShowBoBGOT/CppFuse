@@ -153,11 +153,38 @@ TEST_F(TFileSystemTestFixture, DirectoryAccess) {
         EXPECT_EQ(perms & fs::perms::owner_read, fs::perms::owner_read);
         EXPECT_EQ(perms & fs::perms::owner_write, fs::perms::owner_write);
         EXPECT_EQ(perms & fs::perms::owner_exec, fs::perms::owner_exec);
-        const auto testFileOnePath = dirPath / "accessDirectoryTestFileOne";
-        auto file = std::ofstream(testFileOnePath);
-        EXPECT_TRUE(fs::exists(testFileOnePath.c_str()));
+        const auto testSubDir = dirPath / "accessDirectorySubDir";
+        fs::create_directory(testSubDir);
+        EXPECT_TRUE(fs::exists(testSubDir));
         auto it = fs::directory_iterator(dirPath);
         EXPECT_EQ(std::distance(it, fs::end(it)), 1);
+    }
+    {
+        SCOPED_TRACE("ExecuteProtected");
+        fs::permissions(dirPath, fs::perms::owner_exec, fs::perm_options::remove);
+        EXPECT_EQ(fs::status(dirPath).permissions() & fs::perms::owner_exec, fs::perms::none);
+        {
+            // still can read this directory
+            auto isCaughtError = false;
+            try {
+                auto it = fs::directory_iterator(dirPath);
+                isCaughtError = false;
+            } catch(const fs::filesystem_error& ex) {
+                isCaughtError = true;
+            }
+            EXPECT_FALSE(isCaughtError);
+        }
+        {
+            // but can not move into
+            auto isCaughtError = false;
+            try {
+                // tyring to access "accessDirectorySubDir"
+                auto it = ++fs::recursive_directory_iterator(dirPath);
+            } catch(const fs::filesystem_error& ex) {
+                isCaughtError = true;
+            }
+            EXPECT_TRUE(isCaughtError);
+        }
     }
     {
         SCOPED_TRACE("WriteProtected");
@@ -179,11 +206,6 @@ TEST_F(TFileSystemTestFixture, DirectoryAccess) {
             isCaughtError = true;
         }
         EXPECT_TRUE(isCaughtError);
-    }
-    {
-        SCOPED_TRACE("ExecuteProtected");
-        fs::permissions(dirPath, fs::perms::owner_exec, fs::perm_options::remove);
-        EXPECT_EQ(fs::status(dirPath).permissions() & fs::perms::owner_exec, fs::perms::none);
     }
 }
 
