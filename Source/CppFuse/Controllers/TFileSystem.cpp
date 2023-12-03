@@ -8,6 +8,7 @@
 #include <CppFuse/Controllers/NSDeleteFile.hpp>
 #include <CppFuse/Controllers/NSAccessFile.hpp>
 #include <CppFuse/Errors/TFSException.hpp>
+#include <CppFuse/Helpers/NSHelperFuncs.hpp>
 
 #include <thread>
 #include <cstring>
@@ -167,13 +168,9 @@ int TFileSystem::Write(const char* path, const char* buffer, size_t size, off_t 
         auto fileWrite = file->Write();
         auto& data = fileWrite->Data;
         const auto src = std::span(buffer, size);
-        if(info->flags & O_WRONLY) {
-            const auto replaceSize = static_cast<size_t>(data.end() - (data.begin() + offset));
-            if(replaceSize < size) {
-                data.resize(data.size() + size - replaceSize);
-            }
-            std::copy(src.begin(), src.end(), data.begin() + offset);
-        } else if(info->flags & O_APPEND) {
+        if(NSHelperFuncs::IsHasFlag(info->flags, O_WRONLY)) {
+            data = std::vector(src.begin(), src.end());
+        } else if(NSHelperFuncs::IsHasFlag(info->flags, O_APPEND)) {
             data.insert(data.begin() + offset, src.begin(), src.end());
         }
         return static_cast<int>(size);
