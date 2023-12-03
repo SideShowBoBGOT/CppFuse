@@ -167,7 +167,7 @@ TEST_F(TFileSystemTestFixture, DirectoryAccess) {
             // still can read this directory
             auto isCaughtError = false;
             try {
-                auto it = fs::directory_iterator(dirPath);
+                auto it = ++fs::directory_iterator(dirPath);
                 isCaughtError = false;
             } catch(const fs::filesystem_error& ex) {
                 isCaughtError = true;
