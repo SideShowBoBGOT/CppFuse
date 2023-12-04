@@ -1,0 +1,20 @@
+name: cccc
+on: [push]
+
+jobs:
+  check:
+    name: cccc-action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: cccc action step
+        uses: sarnold/cccc-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: upload metrics report
+        uses: actions/upload-artifact@v2
+        with:
+          name: metrics
+          path: ./metrics
