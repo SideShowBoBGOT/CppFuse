@@ -32,11 +32,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${FUSE3_LIBRARIES})
 
 # Linking project library to main executable
 
-add_executable(MainExecutable main.cpp)
-target_link_libraries(MainExecutable PRIVATE ${PROJECT_NAME})
+add_executable(CppFuseMain main.cpp)
+target_link_libraries(CppFuseMain PRIVATE ${PROJECT_NAME})
 
-add_executable(FindByName FindByName.cpp)
-target_link_libraries(FindByName PRIVATE ${PROJECT_NAME})
+add_executable(CppFuseFind CppFuseFind.cpp)
+target_link_libraries(CppFuseFind PRIVATE ${PROJECT_NAME})
 
 add_subdirectory(Tests)
 
