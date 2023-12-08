@@ -3,14 +3,6 @@
 
 CppFuse is a C++ implementation of a filesystem using the FUSE (Filesystem in Userspace) library. This filesystem provides a set of standard operations, including getattr, readlink, mknod, mkdir, unlink, rmdir, symlink, chmod, read, write, and readdir. The implementation is thread-safe, ensuring concurrent access is handled appropriately.
 
-## Author
-
-    Serhii Panchenko
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Features
 
     Thread-safe implementation
@@ -97,10 +89,16 @@ Contributions are welcome! Feel free to submit issues and pull requests.
 
 This project is built upon the FUSE library, and the contributions of the FUSE community are greatly appreciated.
 
+
+
 ## Contact
 
-For any inquiries or support, please contact at:
+### Author
+    Serhii Panchenko
 ### Email
-    sideshowbobgot@gmail.com.
+    sideshowbobgot@gmail.com
 ### Telegram
     @sideshowbobgot
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
