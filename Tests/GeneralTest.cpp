@@ -130,7 +130,8 @@ TEST_F(TFileSystemTestFixture, FileAccess) {
         SCOPED_TRACE("ExecuteProtected");
         const auto cmdName = std::string("mkdir");
         const auto cmdPath = s_xMountPath / cmdName;
-        fs::copy(fs::path("/bin") / cmdName, cmdPath);
+		std::system(("cp /bin/" + cmdName + " " + cmdPath.native()).c_str());
+        //fs::copy(fs::path("/bin") / cmdName, cmdPath);
         fs::permissions(cmdPath,
             fs::perms::owner_all | fs::perms::group_all | fs::perms::others_all,
             fs::perm_options::add);
@@ -253,7 +254,7 @@ TEST_F(TFileSystemTestFixture, LinkAccess) {
     {
         SCOPED_TRACE("ExecuteProtected");
         const auto cmdPath = s_xMountPath / "mkdir2";
-        fs::copy("/bin/mkdir", cmdPath);
+        std::system((" cp /bin/mkdir " + cmdPath.native()).c_str());
         const auto cmdLink = s_xMountPath / "mkdir2Link";
         fs::create_symlink(cmdPath, cmdLink);
         fs::permissions(cmdLink,
